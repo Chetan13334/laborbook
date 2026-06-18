@@ -48,6 +48,10 @@ export class AppDatabase {
     });
   }
 
+  updateCashbookRow(day: string, patch: Partial<CashbookRow>) {
+    return this.cashbook.updateRow(day, patch);
+  }
+
   addNotification(notification: NotificationRecord) {
     this.notifications.addNotification(notification);
   }

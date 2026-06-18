@@ -1,8 +1,8 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
-import { useCashbookRows } from '@/database';
-import { useMemo, useState } from 'react';
+import { useLaborers } from '@/database';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,35 +14,45 @@ const fontFamily = Platform.select({
 
 type CashbookTab = 'cash-out' | 'cash-in';
 
-const rowLabels: Record<string, string> = {
-  '01': 'Petrol',
-  '02': 'Site Lunch',
-  '03': 'Material Purchase',
-  '04': 'Transport',
-  '05': 'Advance Payment',
-  '06': 'Misc Expense',
-  '07': 'Rent',
+type CashbookViewRow = {
+  id: string;
+  day: string;
+  weekday: string;
+  label: string;
+  notes?: string;
+  amount?: string;
+  kind: CashbookTab;
 };
 
 export default function CashbookPage() {
   const { theme, mode } = useAppTheme();
-  const rows = useCashbookRows();
+  const laborers = useLaborers();
   const [tab, setTab] = useState<CashbookTab>('cash-out');
   const [query, setQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [month, setMonth] = useState('June');
   const [year, setYear] = useState('2026');
+  const [editRow, setEditRow] = useState<CashbookViewRow | null>(null);
+  const [editAmount, setEditAmount] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const amountInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (editRow) {
+      requestAnimationFrame(() => amountInputRef.current?.focus());
+    }
+  }, [editRow]);
+
+  const rows = useMemo(() => buildCashbookRows(laborers), [laborers]);
 
   const filteredRows = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return rows.filter((row) => {
-      const isCashOut = Boolean(row.amount);
-      const tabMatch = tab === 'cash-out' ? isCashOut : !isCashOut;
+      const tabMatch = row.kind === tab;
       if (!tabMatch) return false;
-
       if (!normalized) return true;
 
-      return [row.day, row.weekday, rowLabels[row.day] ?? '', row.amount ?? '', row.attendance.join(' ')]
+      return [row.day, row.weekday, row.label ?? '', row.notes ?? '', row.amount ?? '']
         .join(' ')
         .toLowerCase()
         .includes(normalized);
@@ -50,11 +60,9 @@ export default function CashbookPage() {
   }, [query, rows, tab]);
 
   const totals = useMemo(() => {
-    const cashOutRows = rows.filter((row) => row.amount);
-    return {
-      entries: cashOutRows.length,
-      amount: cashOutRows.length ? cashOutRows.length * 1000 : 0,
-    };
+    const cashOutRows = rows.filter((row) => row.kind === 'cash-out');
+    const cashOutAmount = cashOutRows.reduce((sum, row) => sum + parseMoney(row.amount), 0);
+    return { entries: cashOutRows.length, amount: cashOutAmount };
   }, [rows]);
 
   return (
@@ -69,6 +77,7 @@ export default function CashbookPage() {
 
             <Pressable
               onPress={() => setFilterOpen(true)}
+              hitSlop={12}
               style={[styles.monthButton, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}
             >
               <Text style={[styles.monthButtonText, { color: theme.text }]}>{month} {year} ▾</Text>
@@ -126,21 +135,30 @@ export default function CashbookPage() {
                   key={`${row.day}-${row.weekday}-${row.amount ?? 'empty'}`}
                   style={[styles.rowCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}
                 >
-                  <View>
+                  <View style={styles.rowDate}>
                     <Text style={[styles.rowDay, { color: theme.text }]}>{row.day}</Text>
                     <Text style={[styles.rowWeekday, { color: theme.textSecondary }]}>{row.weekday}</Text>
                   </View>
 
                   <View style={styles.rowCopy}>
-                    <Text style={[styles.rowTitle, { color: theme.text }]}>
-                      {rowLabels[row.day] ?? (tab === 'cash-out' ? 'Cash Out' : 'Cash In')}
-                    </Text>
-                    <Text style={[styles.rowMeta, { color: theme.textSecondary }]}>{row.attendance.join(' • ')}</Text>
+                    <Text style={[styles.rowTitle, { color: theme.text }]}>{row.label}</Text>
+                    <Text style={[styles.rowMeta, { color: theme.textSecondary }]}>{row.notes}</Text>
                   </View>
 
-                  <Text style={[styles.rowAmount, { color: row.amount ? '#d93025' : theme.textSecondary }]}>
-                    {row.amount ?? '₹ 0'}
-                  </Text>
+                  <Pressable
+                    onPress={() => {
+                      setEditRow(row);
+                      setEditAmount(row.amount ?? '');
+                      setEditNotes(row.notes ?? '');
+                    }}
+                    style={({ pressed }) => [styles.rowAmountCell, pressed && styles.rowAmountPressed]}
+                  >
+                    <Text style={[styles.rowAmountLabel, { color: theme.textSecondary }]}>RS / NOTES</Text>
+                    <Text style={[styles.rowAmount, { color: row.amount ? '#d93025' : theme.textSecondary }]}>
+                      {row.amount ?? '₹'}
+                    </Text>
+                    <Text style={[styles.rowAmountChevron, { color: theme.textSecondary }]}>{'>'}</Text>
+                  </Pressable>
                 </View>
               ))
             ) : (
@@ -165,9 +183,99 @@ export default function CashbookPage() {
           onSelectYear={setYear}
         />
 
+        <EditCashbookSheet
+          row={editRow}
+          amount={editAmount}
+          notes={editNotes}
+          onChangeAmount={setEditAmount}
+          onChangeNotes={setEditNotes}
+          amountInputRef={amountInputRef}
+          onClose={() => setEditRow(null)}
+          onSave={() => {
+            if (!editRow) return;
+            setEditRow(null);
+          }}
+        />
+
         <AppBottomBar />
       </SafeAreaView>
     </View>
+  );
+}
+
+function EditCashbookSheet({
+  row,
+  amount,
+  notes,
+  amountInputRef,
+  onChangeAmount,
+  onChangeNotes,
+  onClose,
+  onSave,
+}: {
+  row: { day: string; weekday: string; label?: string } | null;
+  amount: string;
+  notes: string;
+  amountInputRef: RefObject<TextInput | null>;
+  onChangeAmount: (value: string) => void;
+  onChangeNotes: (value: string) => void;
+  onClose: () => void;
+  onSave: () => void;
+}) {
+  const { theme } = useAppTheme();
+
+  return (
+    <Modal transparent visible={Boolean(row)} animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.sheetBackdrop} onPress={onClose} />
+      <View style={[styles.sheet, { backgroundColor: theme.surfaceElevated }]}>
+        <View style={styles.sheetHandle} />
+        <View style={styles.sheetHeader}>
+          <View>
+            <Text style={[styles.sheetTitle, { color: theme.text }]}>Advance amount</Text>
+            <Text style={[styles.sheetSubTitle, { color: theme.textSecondary }]}>to {row?.label ?? 'entry'} 👀</Text>
+          </View>
+          <Text style={[styles.sheetDate, { color: theme.text }]}>
+            {row ? `${row.day} ${row.weekday}` : ''}
+          </Text>
+        </View>
+
+        <View style={styles.amountRow}>
+          <Text style={[styles.rupee, { color: theme.text }]}>₹</Text>
+          <TextInput
+            ref={amountInputRef}
+            value={amount}
+            onChangeText={onChangeAmount}
+            autoFocus
+            keyboardType="number-pad"
+            placeholder="0"
+            placeholderTextColor={theme.textSecondary}
+            style={[styles.amountInput, { color: theme.text }]}
+          />
+          <View style={styles.modePill}>
+            <Text style={styles.modeText}>Online</Text>
+            <View style={styles.modeActive}>
+              <Text style={styles.modeTextActive}>Cash</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={[styles.notesLabel, { color: theme.text }]}>Notes</Text>
+        <TextInput
+          value={notes}
+          onChangeText={onChangeNotes}
+          placeholder="Eg.(Food, petrol, rent)"
+          placeholderTextColor={theme.textSecondary}
+          style={[styles.notesInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+        />
+
+        <Pressable
+          onPress={onSave}
+          style={({ pressed }) => [styles.sheetButton, { backgroundColor: theme.accent }, pressed && styles.pressed]}
+        >
+          <Text style={[styles.sheetButtonText, { color: theme.background }]}>Ok</Text>
+        </Pressable>
+      </View>
+    </Modal>
   );
 }
 
@@ -196,7 +304,6 @@ function MonthFilterSheet({
       <View style={[styles.sheet, { backgroundColor: theme.surfaceElevated }]}>
         <View style={styles.sheetHandle} />
         <Text style={[styles.sheetTitle, { color: theme.text }]}>Select Month & Year</Text>
-
         <View style={styles.sheetRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
             {months.map((item) => {
@@ -213,7 +320,6 @@ function MonthFilterSheet({
             })}
           </ScrollView>
         </View>
-
         <View style={styles.sheetRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
             {years.map((item) => {
@@ -230,13 +336,54 @@ function MonthFilterSheet({
             })}
           </ScrollView>
         </View>
-
         <Pressable onPress={onClose} style={[styles.sheetButton, { backgroundColor: theme.accent }]}>
           <Text style={[styles.sheetButtonText, { color: theme.background }]}>Ok</Text>
         </Pressable>
       </View>
     </Modal>
   );
+}
+
+function parseMoney(value?: string) {
+  if (!value) return 0;
+  return Number(value.replace(/[^\d.-]/g, '')) || 0;
+}
+
+function buildCashbookRows(laborers: ReturnType<typeof useLaborers>): CashbookViewRow[] {
+  return laborers.flatMap((laborer, index) => {
+    const day = String(index + 1).padStart(2, '0');
+    const weekday = weekdayFromIndex(index);
+    const amount = laborer.amount;
+    const isUnpaid = laborer.badge === 'Unpaid';
+    const isPaid = laborer.badge === 'Paid';
+
+    const cashOutRow: CashbookViewRow = {
+      id: `${laborer.slug}-out`,
+      day,
+      weekday,
+      label: laborer.name,
+      notes: `${laborer.role} • ${laborer.status}`,
+      amount: isUnpaid || Number(amount.replace(/[^\d.-]/g, '')) > 0 ? amount : undefined,
+      kind: 'cash-out',
+    };
+
+    const cashInRow: CashbookViewRow = {
+      id: `${laborer.slug}-in`,
+      day,
+      weekday,
+      label: laborer.name,
+      notes: `${laborer.role} • ${isPaid ? 'Received' : 'Pending'}`,
+      amount: isPaid ? amount : undefined,
+      kind: 'cash-in',
+    };
+
+    return [cashOutRow, cashInRow];
+  });
+}
+
+function weekdayFromIndex(index: number) {
+  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return weekdays[index % weekdays.length];
 }
 
 const shadow =
@@ -278,6 +425,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
+    elevation: 3,
     ...(shadow as object),
   },
   monthButtonText: {
@@ -295,6 +444,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 50,
+    elevation: 12,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 16,
@@ -309,10 +460,98 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(127,127,127,0.35)',
   },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
   sheetTitle: {
     fontSize: 20,
     lineHeight: 26,
     fontWeight: '900',
+    fontFamily,
+  },
+  sheetSubTitle: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '800',
+    fontFamily,
+  },
+  sheetDate: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '900',
+    fontFamily,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  rupee: {
+    fontSize: 44,
+    lineHeight: 48,
+    fontWeight: '900',
+    fontFamily,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 44,
+    lineHeight: 48,
+    fontWeight: '900',
+    paddingVertical: 0,
+    fontFamily,
+  },
+  modePill: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#3d72d6',
+    borderRadius: 28,
+    overflow: 'hidden',
+  },
+  modeText: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    color: '#245db8',
+    fontWeight: '800',
+    fontFamily,
+  },
+  modeActive: {
+    backgroundColor: '#245db8',
+  },
+  modeTextActive: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    color: '#ffffff',
+    fontWeight: '800',
+    fontFamily,
+  },
+  notesLabel: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '900',
+    fontFamily,
+  },
+  notesInput: {
+    minHeight: 54,
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily,
+  },
+  sheetButton: {
+    minHeight: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetButtonText: {
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '800',
     fontFamily,
   },
   sheetRow: {
@@ -334,18 +573,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     fontWeight: '700',
-    fontFamily,
-  },
-  sheetButton: {
-    minHeight: 52,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sheetButtonText: {
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: '800',
     fontFamily,
   },
   tabRow: {
@@ -414,7 +641,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   summaryLabel: {
-    fontSize: 14,
+    fontSize: 10,
     lineHeight: 18,
     fontWeight: '800',
     textAlign: 'center',
@@ -449,6 +676,9 @@ const styles = StyleSheet.create({
     gap: 12,
     ...(shadow as object),
   },
+  rowDate: {
+    width: 40,
+  },
   rowDay: {
     fontSize: 18,
     lineHeight: 22,
@@ -479,6 +709,28 @@ const styles = StyleSheet.create({
   },
   rowAmount: {
     fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '900',
+    fontFamily,
+  },
+  rowAmountCell: {
+    width: 110,
+    alignItems: 'flex-end',
+    gap: 2,
+    paddingVertical: 4,
+  },
+  rowAmountPressed: {
+    opacity: 0.8,
+  },
+  rowAmountLabel: {
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    fontFamily,
+  },
+  rowAmountChevron: {
+    fontSize: 16,
     lineHeight: 18,
     fontWeight: '900',
     fontFamily,
@@ -522,5 +774,9 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     fontWeight: '900',
     fontFamily,
+  },
+  pressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.92,
   },
 });

@@ -88,10 +88,6 @@ export default function SettingsPage() {
             <Text style={[styles.pageTitle, { color: palette.text }]}>Settings</Text>
             <Text style={[styles.pageSubTitle, { color: palette.subtext }]}>Control the app experience</Text>
           </View>
-
-          <View style={styles.headerBadge}>
-            <Text style={[styles.headerBadgeText, { color: palette.accentDark }]}>Pro</Text>
-          </View>
         </View>
 
         <View style={styles.content}>
@@ -116,9 +112,7 @@ export default function SettingsPage() {
             </View>
 
             <View style={styles.heroStats}>
-              <StatPill label="Version" value="1.0.0" palette={palette} />
               <StatPill label="Mode" value={mode === 'dark' ? 'Dark' : 'Light'} palette={palette} />
-              <StatPill label="Cloud" value="Synced" palette={palette} />
             </View>
           </View>
 
@@ -153,46 +147,6 @@ export default function SettingsPage() {
             />
           </View>
 
-          <View
-            style={[
-              styles.sectionCard,
-              { backgroundColor: palette.card, borderColor: palette.border, shadowColor: palette.shadow },
-            ]}
-          >
-            <Text style={[styles.sectionTitle, { color: palette.text }]}>Preferences</Text>
-
-            <SettingsRow
-              label="Language"
-              value="English"
-              palette={palette}
-              onPress={() => {}}
-            />
-            <SettingsRow
-              label="Currency"
-              value="INR (₹)"
-              palette={palette}
-              onPress={() => {}}
-            />
-            <SettingsRow
-              label="Data Backup"
-              value="Auto sync enabled"
-              palette={palette}
-              onPress={() => {}}
-            />
-          </View>
-
-          <View
-            style={[
-              styles.sectionCard,
-              { backgroundColor: palette.card, borderColor: palette.border, shadowColor: palette.shadow },
-            ]}
-          >
-            <Text style={[styles.sectionTitle, { color: palette.text }]}>Security</Text>
-
-            <SettingsRow label="Change PIN" value="Update login PIN" palette={palette} onPress={() => {}} />
-            <SettingsRow label="Privacy" value="Permissions & access" palette={palette} onPress={() => {}} />
-            <SettingsRow label="Backup Now" value="Last backup today" palette={palette} onPress={() => {}} />
-          </View>
 
           <View style={[styles.footerCard, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
             <Text style={[styles.footerText, { color: palette.subtext }]}>
@@ -441,6 +395,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     flexDirection: 'row',
     gap: 8,
+    paddingRight: 250,  
   },
   statPill: {
     flex: 1,

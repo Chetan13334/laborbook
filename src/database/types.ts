@@ -49,6 +49,7 @@ export type CashbookRow = {
   day: string;
   weekday: string;
   label?: string;
+  notes?: string;
   attendance: ('A' | 'P' | 'OT')[];
   amount?: string;
   highlighted?: boolean;
