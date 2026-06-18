@@ -1,20 +1,21 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import {
-  Alert,
-  Platform,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBottomBar } from '@/components/app-bottom-bar';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { appDatabase } from '@/database';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+    Alert,
+    Platform,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -27,6 +28,10 @@ export default function AddLaborPage() {
   const { theme } = useAppTheme();
   const [entryMode, setEntryMode] = useState<'contacts' | 'manual'>('manual');
   const [salaryMode, setSalaryMode] = useState<'daily' | 'monthly'>('daily');
+  const [laborName, setLaborName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [wageAmount, setWageAmount] = useState('');
+  const [notes, setNotes] = useState('');
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -73,10 +78,35 @@ export default function AddLaborPage() {
                 pressed && styles.pressed,
               ]}
             >
-              <View style={[styles.optionIconShell, { backgroundColor: entryMode === 'contacts' ? theme.accent : '#d8e2ff' }]}>
-                <Text style={styles.optionIcon}>{'\u2318'}</Text>
+              <View
+                style={[
+                  styles.optionIconShell,
+                  {
+                    backgroundColor: entryMode === 'contacts' ? theme.accent : theme.background,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.optionIcon,
+                    {
+                      color: entryMode === 'contacts' ? theme.background : theme.textSecondary,
+                    },
+                  ]}
+                >
+                  {'\u2318'}
+                </Text>
               </View>
-              <Text style={[styles.optionLabel, { color: theme.text }]}>Add from contacts</Text>
+              <Text
+                style={[
+                  styles.optionLabel,
+                  {
+                    color: entryMode === 'contacts' ? theme.accent : theme.textSecondary,
+                  },
+                ]}
+              >
+                Add from contacts
+              </Text>
             </Pressable>
             <Pressable
               onPress={() => setEntryMode('manual')}
@@ -89,10 +119,33 @@ export default function AddLaborPage() {
                 pressed && styles.pressed,
               ]}
             >
-              <View style={[styles.optionIconShell, { backgroundColor: entryMode === 'manual' ? theme.accent : '#d8e2ff' }]}>
-                <Text style={styles.optionIconActive}>{'\u270E'}</Text>
+              <View
+                style={[
+                  styles.optionIconShell,
+                  {
+                    backgroundColor: entryMode === 'manual' ? theme.accent : theme.background,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.optionIconActive,
+                    {
+                      color: entryMode === 'manual' ? theme.background : theme.textSecondary,
+                    },
+                  ]}
+                >
+                  {'\u270E'}
+                </Text>
               </View>
-              <Text style={[styles.optionLabelActive, { color: entryMode === 'manual' ? theme.accent : theme.text }]}>
+              <Text
+                style={[
+                  styles.optionLabelActive,
+                  {
+                    color: entryMode === 'manual' ? theme.accent : theme.textSecondary,
+                  },
+                ]}
+              >
                 Add manually
               </Text>
             </Pressable>
@@ -120,6 +173,8 @@ export default function AddLaborPage() {
                 ]}
                 placeholder="Enter full name"
                 placeholderTextColor={theme.textSecondary}
+                value={laborName}
+                onChangeText={setLaborName}
               />
             </View>
 
@@ -149,6 +204,8 @@ export default function AddLaborPage() {
                   placeholder="10-digit number"
                   placeholderTextColor={theme.textSecondary}
                   keyboardType="phone-pad"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
                 />
               </View>
             </View>
@@ -209,6 +266,8 @@ export default function AddLaborPage() {
                   placeholder={salaryMode === 'daily' ? 'Enter daily wage amount' : 'Enter monthly salary amount'}
                   placeholderTextColor={theme.textSecondary}
                   keyboardType="numeric"
+                    value={wageAmount}
+                    onChangeText={setWageAmount}
                 />
               </View>
             </View>
@@ -227,12 +286,28 @@ export default function AddLaborPage() {
                 placeholder="Work details, emergency contact, etc."
                 placeholderTextColor={theme.textSecondary}
                 multiline
+                value={notes}
+                onChangeText={setNotes}
               />
             </View>
 
             <Pressable
               onPress={() => {
-                Alert.alert('Saved', 'Labor has been added locally for now.');
+                if (!laborName.trim()) {
+                  Alert.alert('Missing labor name', 'Enter a name to save this labor record.');
+                  return;
+                }
+
+                appDatabase.createLabor({
+                  name: laborName,
+                  phone: phoneNumber,
+                  salaryMode,
+                  amount: wageAmount,
+                  notes,
+                  entryMode,
+                });
+
+                Alert.alert('Saved', 'Labor has been added to the demo database.');
                 router.push('/labor');
               }}
               style={({ pressed }) => [
@@ -241,7 +316,7 @@ export default function AddLaborPage() {
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.saveButtonText}>Save Labor</Text>
+              <Text style={[styles.saveButtonText, { color: theme.background }]}>Save Labor</Text>
             </Pressable>
           </View>
 

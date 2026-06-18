@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import {
-  Alert,
-  Platform,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBottomBar } from '@/components/app-bottom-bar';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { appDatabase, useSettings } from '@/database';
+import { useRouter } from 'expo-router';
+import {
+    Alert,
+    Platform,
+    Pressable,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -22,45 +22,45 @@ const fontFamily = Platform.select({
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { mode, setMode } = useAppTheme();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { theme, mode, setMode } = useAppTheme();
+  const settings = useSettings();
 
   const palette = mode === 'dark'
     ? {
-        screen: '#0e1324',
-        card: 'rgba(20, 27, 48, 0.92)',
-        cardSoft: 'rgba(255,255,255,0.05)',
-        border: 'rgba(255,255,255,0.10)',
-        text: '#eef0ff',
-        subtext: '#a7b0cf',
-        accent: '#29fcf3',
-        accentDark: '#8ffa9b',
-        chip: 'rgba(41,252,243,0.10)',
-        chipBorder: 'rgba(41,252,243,0.30)',
-        muted: '#131b2e',
+        screen: theme.background,
+        card: theme.surfaceElevated,
+        cardSoft: theme.accentSoft,
+        border: theme.border,
+        text: theme.text,
+        subtext: theme.textSecondary,
+        accent: theme.accent,
+        accentDark: theme.success,
+        chip: theme.accentSoft,
+        chipBorder: theme.border,
+        muted: theme.background,
         shadow: '#000',
         track: 'rgba(255,255,255,0.10)',
         knob: '#ffffff',
-        glowA: 'rgba(0,76,202,0.32)',
-        glowB: 'rgba(41,252,243,0.18)',
+        glowA: 'rgba(0,76,202,0.15)',
+        glowB: 'rgba(41,252,243,0.08)',
       }
     : {
-        screen: '#faf8ff',
-        card: 'rgba(255,255,255,0.82)',
-        cardSoft: 'rgba(255,255,255,0.62)',
-        border: 'rgba(255,255,255,0.82)',
-        text: '#131b2e',
-        subtext: '#424656',
-        accent: '#004cca',
-        accentDark: '#00531e',
-        chip: 'rgba(0,76,202,0.08)',
-        chipBorder: 'rgba(0,76,202,0.14)',
-        muted: '#eef1ff',
-        shadow: '#004cca',
+        screen: theme.background,
+        card: theme.surfaceElevated,
+        cardSoft: theme.accentSoft,
+        border: theme.border,
+        text: theme.text,
+        subtext: theme.textSecondary,
+        accent: theme.accent,
+        accentDark: theme.success,
+        chip: theme.accentSoft,
+        chipBorder: theme.border,
+        muted: theme.background,
+        shadow: 'rgba(0,0,0,0.05)',
         track: '#d8e2ff',
         knob: '#ffffff',
-        glowA: 'rgba(0,76,202,0.12)',
-        glowB: 'rgba(41,252,243,0.10)',
+        glowA: 'rgba(0,76,202,0.06)',
+        glowB: 'rgba(41,252,243,0.05)',
       };
 
   return (
@@ -134,7 +134,11 @@ export default function SettingsPage() {
               title="Dark Mode"
               description="Switch the app to a darker, low-light friendly look."
               enabled={mode === 'dark'}
-              onToggle={() => setMode(mode === 'dark' ? 'light' : 'dark')}
+              onToggle={() => {
+                const nextMode = mode === 'dark' ? 'light' : 'dark';
+                setMode(nextMode);
+                appDatabase.settings.setMode(nextMode);
+              }}
               palette={palette}
             />
 
@@ -143,8 +147,8 @@ export default function SettingsPage() {
             <SettingSwitch
               title="Push Notifications"
               description="Get updates for payments, attendance, and important reminders."
-              enabled={notificationsEnabled}
-              onToggle={() => setNotificationsEnabled((value) => !value)}
+              enabled={settings.notificationsEnabled ?? false}
+              onToggle={() => appDatabase.settings.toggleNotifications()}
               palette={palette}
             />
           </View>
@@ -248,6 +252,8 @@ function SettingSwitch({
     knob: string;
   };
 }) {
+  const { theme } = useAppTheme();
+
   return (
     <Pressable onPress={onToggle} style={({ pressed }) => [styles.switchRow, pressed && styles.pressed]}>
       <View style={styles.switchCopy}>
@@ -257,7 +263,7 @@ function SettingSwitch({
       <View
         style={[
           styles.switchTrack,
-          { backgroundColor: enabled ? palette.accent : palette.track },
+          { backgroundColor: enabled ? theme.success : palette.track },
         ]}
       >
         <View

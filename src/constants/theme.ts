@@ -3,41 +3,65 @@
  */
 
 import '@/global.css';
-
 import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#131b2e',
-    background: '#faf8ff',
-    backgroundElement: 'rgba(255,255,255,0.84)',
-    backgroundSelected: 'rgba(0,76,202,0.08)',
-    textSecondary: '#5a6076',
-    surface: '#ffffff',
-    surfaceElevated: 'rgba(255,255,255,0.92)',
-    border: 'rgba(255,255,255,0.82)',
-    accent: '#004cca',
-    accentSoft: 'rgba(0,76,202,0.10)',
-    success: '#00531e',
-    warning: '#bb1712',
+    // Text
+    text: '#000000',
+    textSecondary: '#737373',
+
+    // Backgrounds
+    background: '#FFFFFF',
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#F2F2F2',
+
+    // Surfaces
+    surface: '#FFFFFF',
+    surfaceElevated: '#FFFFFF',
+
+    // Borders
+    border: '#DBDBDB',
+
+    // Accent
+    accent: '#000000',
+    accentSoft: '#F5F5F5',
+
+    // Status
+    success: '#34C759',
+    warning: '#FF3B30',
   },
+
   dark: {
-    text: '#eef0ff',
-    background: '#0e1324',
-    backgroundElement: 'rgba(20,27,48,0.92)',
-    backgroundSelected: 'rgba(41,252,243,0.10)',
-    textSecondary: '#a7b0cf',
-    surface: '#151c31',
-    surfaceElevated: 'rgba(24,33,57,0.96)',
-    border: 'rgba(255,255,255,0.10)',
-    accent: '#29fcf3',
-    accentSoft: 'rgba(41,252,243,0.14)',
-    success: '#8ffa9b',
-    warning: '#ffb4a9',
+    // Text
+    text: '#FFFFFF',
+    textSecondary: '#A8A8A8',
+
+    // Backgrounds
+    background: '#000000',
+    backgroundElement: '#000000',
+    backgroundSelected: '#1A1A1A',
+
+    // Surfaces
+    surface: '#121212',
+    surfaceElevated: '#1A1A1A',
+
+    // Borders
+    border: '#262626',
+
+    // Accent
+    accent: '#FFFFFF',
+    accentSoft: '#1A1A1A',
+
+    // Status
+    success: '#30D158',
+    warning: '#FF453A',
   },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type ThemeColor =
+  keyof typeof Colors.light &
+  keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
@@ -46,12 +70,21 @@ export const Fonts = Platform.select({
     rounded: 'ui-rounded',
     mono: 'ui-monospace',
   },
+
+  android: {
+    sans: 'sans-serif',
+    serif: 'serif',
+    rounded: 'sans-serif',
+    mono: 'monospace',
+  },
+
   default: {
     sans: 'normal',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
   },
+
   web: {
     sans: 'var(--font-display)',
     serif: 'var(--font-serif)',
@@ -70,5 +103,10 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+export const BottomTabInset =
+  Platform.select({
+    ios: 50,
+    android: 80,
+  }) ?? 0;
+
 export const MaxContentWidth = 800;
