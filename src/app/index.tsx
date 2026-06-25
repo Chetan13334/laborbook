@@ -1,6 +1,8 @@
 import { Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppBackdrop } from '@/components/app-backdrop';
+import { useAppTheme } from '@/components/app-theme';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -10,30 +12,29 @@ const fontFamily = Platform.select({
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { theme, mode } = useAppTheme();
 
   return (
-    <View style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#eef1ff" />
-
-      <View style={styles.backgroundGlowLeft} />
-      <View style={styles.backgroundGlowRight} />
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
+      <AppBackdrop />
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
-          <View style={styles.card}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login to manage your workforce</Text>
+          <View style={[styles.card, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+            <Text style={[styles.title, { color: theme.text }]}>Welcome Back</Text>
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Login to manage your workforce</Text>
 
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Phone Number</Text>
-              <View style={styles.phoneField}>
-                <Text style={styles.countryCode}>+91</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Phone Number</Text>
+              <View style={[styles.phoneField, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                <Text style={[styles.countryCode, { color: theme.textSecondary }]}>+91</Text>
                 <TextInput
                   defaultValue="98765 43210"
                   placeholder="98765 43210"
-                  placeholderTextColor="#8b8fa5"
+                  placeholderTextColor={theme.textSecondary}
                   keyboardType="phone-pad"
-                  style={styles.input}
+                  style={[styles.input, { color: theme.text }]}
                 />
               </View>
             </View>
@@ -43,17 +44,17 @@ export default function HomeScreen() {
             </Pressable>
 
             <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or continue with</Text>
-              <View style={styles.dividerLine} />
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+              <Text style={[styles.dividerText, { color: theme.textSecondary }]}>or continue with</Text>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
             </View>
 
             <Pressable style={styles.googleButton}>
               <Text style={styles.googleLogo}>G</Text>
-              <Text style={styles.googleText}>Google</Text>
+              <Text style={[styles.googleText, { color: theme.text }]}>Google</Text>
             </Pressable>
 
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: theme.textSecondary }]}>
               By signing in, you agree to our
               {'\n'}
               <Text style={styles.footerLink}>Terms of Service</Text> &{' '}
@@ -81,22 +82,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backgroundGlowLeft: {
-    position: 'absolute',
-    left: -60,
-    top: 40,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(0, 76, 202, 0.12)',
   },
   backgroundGlowRight: {
-    position: 'absolute',
-    right: -70,
-    bottom: 0,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: 'rgba(0, 221, 214, 0.14)',
   },
   card: {
     width: '100%',

@@ -1,8 +1,10 @@
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBottomBar } from '@/components/app-bottom-bar';
 import { AppBackdrop } from '@/components/app-backdrop';
+import { useAppTheme } from '@/components/app-theme';
+import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
+import { useRouter, type Href } from 'expo-router';
+import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type StatCard = {
   title: string;
@@ -16,7 +18,7 @@ type ActionItem = {
   label: string;
   icon: string;
   accent: string;
-  route: string;
+  route: Href;
 };
 
 type LaborerItem = {
@@ -64,52 +66,11 @@ const iconFallbacks: Record<string, string> = {
   settings: '\u2699\uFE0F',
 };
 
-const stats: StatCard[] = [
-  { title: 'Total Labor', value: '24', icon: 'groups', accent: '#005bbf' },
-  { title: 'Today', value: '18', subtitle: 'Present', icon: 'how_to_reg', accent: '#006e2a' },
-  { title: 'Pending Payments', value: '\u20B915,400', icon: 'pending_actions', accent: '#bb1712' },
-  { title: 'Total Monthly Expenses', value: '\u20B945,000', icon: 'payments', accent: '#ffffff' },
-];
-
 const actions: ActionItem[] = [
   { label: 'Add Labor', icon: 'person_add', accent: '#005bbf', route: '/labor/add' },
   { label: 'Add Pay', icon: 'add_card', accent: '#006e2a', route: '/cashbook' },
   { label: 'Cash Book', icon: 'book', accent: '#191c1d', route: '/cashbook' },
   { label: 'Reports', icon: 'bar_chart', accent: '#bb1712', route: '/reports' },
-];
-
-const laborers: LaborerItem[] = [
-  {
-    initials: 'RK',
-    name: 'Rajesh Kumar',
-    role: 'Mason',
-    status: 'Present',
-    amount: '\u20B9450',
-    amountColor: '#bb1712',
-    badge: 'Unpaid',
-    badgeBg: '#ba1a1a1a',
-    badgeText: '#ba1a1a',
-  },
-  {
-    initials: 'MS',
-    name: 'Manoj Singh',
-    role: 'Helper',
-    status: 'Present',
-    amount: '\u20B9300',
-    amountColor: '#006e2a',
-    badge: 'Paid',
-    badgeBg: '#8ffa9b33',
-    badgeText: '#00531e',
-  },
-  {
-    initials: 'AP',
-    name: 'Amit Patel',
-    role: 'Electrician',
-    status: 'Absent',
-    amount: '\u20B90',
-    amountColor: '#414754',
-    muted: true,
-  },
 ];
 
 const fontFamily = Platform.select({
@@ -118,53 +79,64 @@ const fontFamily = Platform.select({
   default: 'sans-serif',
 });
 
+
 export default function HomePage() {
   const router = useRouter();
+  const { theme, mode } = useAppTheme();
+  const { data: laborers, loading, error } = useLaborers();
+  const cashbookRows = useCashbookRows();
+  const dashboard = buildDashboardSnapshot(laborers, cashbookRows);
 
   return (
-    <View style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
       <AppBackdrop />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.headerCard}>
+          <View style={[styles.headerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
             <View style={styles.header}>
               <View style={styles.brandRow}>
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
                   <Text style={styles.avatarText}>LB</Text>
                 </View>
                 <View>
-                  <Text style={styles.brand}>LaborBook</Text>
-                  <Text style={styles.brandMeta}>Operations dashboard</Text>
+                  <Text style={[styles.brand, { color: theme.text }]}>LaborBook</Text>
+                  <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>Operations dashboard</Text>
                 </View>
               </View>
 
-            <Pressable onPress={() => router.push('/notifications')} style={styles.iconButton}>
-              <MaterialIcon name="notifications" color="#004cca" size={24} />
+            <Pressable onPress={() => router.push('/notifications')} style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}>
+              <MaterialIcon name="notifications" color={theme.accent} size={24} />
             </Pressable>
             </View>
           </View>
 
-          <View style={styles.heroCard}>
+          <View style={[styles.heroCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
             <View style={styles.heroTopRow}>
               <View>
-                <Text style={styles.heroEyebrow}>Today at a glance</Text>
-                <Text style={styles.heroTitle}>Work moves better when the numbers feel calm.</Text>
+                <Text style={[styles.heroEyebrow, { color: theme.accent }]}>Today at a glance</Text>
+                <Text style={[styles.heroTitle, { color: theme.text }]}>Work moves better when the numbers feel calm.</Text>
               </View>
               <View style={styles.heroBadge}>
                 <Text style={styles.heroBadgeText}>Live</Text>
               </View>
             </View>
 
-            <Text style={styles.heroDescription}>
+            <Text style={[styles.heroDescription, { color: theme.textSecondary }]}>
               Track labor, attendance, and payments with a clean, premium workspace that feels fast on every screen.
             </Text>
 
-            <View style={styles.heroStatsRow}>
-              <HeroChip label="Laborers" value="24" />
-              <HeroChip label="Present" value="18" />
-              <HeroChip label="Pending" value="₹15.4k" accent />
-            </View>
+            {loading ? (
+              <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 20 }} />
+            ) : error ? (
+              <Text style={{ color: theme.error, marginVertical: 20 }}>Error loading dashboard data</Text>
+            ) : (
+              <View style={styles.heroStatsRow}>
+                <HeroChip label="Laborers" value={String(dashboard.totalLabor)} />
+                <HeroChip label="Present" value={String(dashboard.presentToday)} />
+                <HeroChip label="Pending" value={dashboard.pendingPayments} accent />
+              </View>
+            )}
 
             <Pressable
               onPress={() => router.push('/labor')}
@@ -181,16 +153,16 @@ export default function HomePage() {
               <Text style={styles.sectionHint}>Fast access</Text>
             </View>
             <View style={styles.bentoGrid}>
-              <StatCardView stat={stats[0]} />
-              <StatCardView stat={stats[1]} />
+              <StatCardView stat={{ title: 'Total Labor', value: String(dashboard.totalLabor), icon: 'groups', accent: '#005bbf' }} />
+              <StatCardView stat={{ title: 'Today', value: String(dashboard.presentToday), subtitle: 'Present', icon: 'how_to_reg', accent: '#006e2a' }} />
 
-              <View style={styles.pendingCard}>
+              <View style={[styles.pendingCard, { borderColor: theme.border }]}>
                 <View style={styles.cardTopRow}>
-                  <Text style={styles.cardLabel}>Pending Payments</Text>
+                  <Text style={[styles.cardLabel, { color: theme.textSecondary }]}>Pending Payments</Text>
                   <MaterialIcon name="pending_actions" color="#bb1712" size={20} />
                 </View>
-                <Text style={styles.pendingValue}>{stats[2].value}</Text>
-                <View style={styles.progressTrack}>
+                <Text style={styles.pendingValue}>{dashboard.pendingPayments}</Text>
+                <View style={[styles.progressTrack, { backgroundColor: theme.border }]}>
                   <View style={styles.progressFill} />
                 </View>
               </View>
@@ -198,7 +170,7 @@ export default function HomePage() {
               <View style={styles.expenseCard}>
                 <View>
                   <Text style={styles.expenseLabel}>Total Monthly Expenses</Text>
-                  <Text style={styles.expenseValue}>{stats[3].value}</Text>
+                  <Text style={styles.expenseValue}>{dashboard.monthlyExpenses}</Text>
                 </View>
                 <MaterialIcon name="payments" color="rgba(255,255,255,0.22)" size={54} />
               </View>
@@ -217,10 +189,10 @@ export default function HomePage() {
                   onPress={() => router.push(action.route)}
                   style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
                 >
-                  <View style={styles.actionIconShell}>
+                  <View style={[styles.actionIconShell, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
                     <MaterialIcon name={action.icon} color={action.accent} size={22} />
                   </View>
-                  <Text style={styles.actionLabel}>{action.label}</Text>
+                  <Text style={[styles.actionLabel, { color: theme.text }]}>{action.label}</Text>
                 </Pressable>
               ))}
             </View>
@@ -228,7 +200,7 @@ export default function HomePage() {
 
           <View style={styles.sectionSpacing}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Laborers</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Laborers</Text>
               <Pressable onPress={() => router.push('/labor')}>
                 <Text style={styles.viewAll}>View All</Text>
               </Pressable>
@@ -236,13 +208,13 @@ export default function HomePage() {
 
             <View style={styles.laborerStack}>
               {laborers.map((laborer) => (
-                <View key={laborer.name} style={[styles.laborerCard, laborer.muted && styles.laborerMuted]}>
-                  <View style={styles.initialsBubble}>
-                    <Text style={styles.initialsText}>{laborer.initials}</Text>
+                <View key={laborer.name} style={[styles.laborerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }, laborer.muted && styles.laborerMuted]}>
+                  <View style={[styles.initialsBubble, { backgroundColor: mode === 'dark' ? theme.background : theme.accentSoft, borderColor: theme.border, borderWidth: 1 }]}>
+                    <Text style={[styles.initialsText, { color: theme.accent }]}>{laborer.initials}</Text>
                   </View>
                   <View style={styles.laborerCopy}>
-                    <Text style={styles.laborerName}>{laborer.name}</Text>
-                    <Text style={styles.laborerMeta}>
+                    <Text style={[styles.laborerName, { color: theme.text }]}>{laborer.name}</Text>
+                    <Text style={[styles.laborerMeta, { color: theme.textSecondary }]}>
                       {laborer.role} {'\u2022'} {laborer.status}
                     </Text>
                   </View>
@@ -273,29 +245,33 @@ export default function HomePage() {
 }
 
 function HeroChip({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={[styles.heroChip, accent && styles.heroChipAccent]}>
-      <Text style={[styles.heroChipLabel, accent && styles.heroChipLabelAccent]}>{label}</Text>
-      <Text style={[styles.heroChipValue, accent && styles.heroChipValueAccent]}>{value}</Text>
+    <View style={[styles.heroChip, { backgroundColor: theme.accentSoft, borderColor: theme.border }, accent && styles.heroChipAccent]}>
+      <Text style={[styles.heroChipLabel, { color: theme.textSecondary }, accent && { color: theme.accent }]}>{label}</Text>
+      <Text style={[styles.heroChipValue, { color: theme.text }, accent && { color: theme.accent }]}>{value}</Text>
     </View>
   );
 }
 
 function StatCardView({ stat }: { stat: StatCard }) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={styles.smallCard}>
+    <View style={[styles.smallCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
       <View style={styles.cardTopRow}>
-        <Text style={styles.cardLabel}>{stat.title}</Text>
+        <Text style={[styles.cardLabel, { color: theme.textSecondary }]}>{stat.title}</Text>
         <MaterialIcon name={stat.icon} color={stat.accent} size={20} />
       </View>
       <View style={styles.statValueRow}>
-        <Text style={styles.statValue}>{stat.value}</Text>
-        {stat.subtitle ? <Text style={styles.statSubtitle}>{stat.subtitle}</Text> : null}
+        <Text style={[styles.statValue, { color: theme.text }]}>{stat.value}</Text>
+        {stat.subtitle ? <Text style={[styles.statSubtitle, { color: theme.textSecondary }]}>{stat.subtitle}</Text> : null}
       </View>
     </View>
   );
 }
-
+  
 function MaterialIcon({
   name,
   color,
