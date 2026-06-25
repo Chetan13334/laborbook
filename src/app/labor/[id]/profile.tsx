@@ -2,8 +2,8 @@ import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { appDatabase, useLaborProfile } from '@/database';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState, useEffect } from 'react';
+import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
@@ -16,10 +16,18 @@ export default function LaborProfilePage() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { theme, mode } = useAppTheme();
-  const profile = useLaborProfile(typeof id === 'string' ? id : undefined);
-  const [name, setName] = useState(profile.name);
-  const [role, setRole] = useState(profile.role);
-  const [dailyRate, setDailyRate] = useState(profile.dailyRate);
+  const { data: profile, loading, error } = useLaborProfile(typeof id === 'string' ? id : undefined);
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('');
+  const [dailyRate, setDailyRate] = useState('');
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setRole(profile.role);
+      setDailyRate(profile.dailyRate);
+    }
+  }, [profile]);
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -34,7 +42,12 @@ export default function LaborProfilePage() {
           <View style={styles.headerSpacer} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {loading ? (
+          <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 40 }} />
+        ) : error || !profile ? (
+          <Text style={{ color: theme.error, textAlign: 'center', marginVertical: 40 }}>Error loading profile</Text>
+        ) : (
+          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
             <View style={[styles.avatar, { backgroundColor: mode === 'dark' ? theme.background : theme.accentSoft, borderColor: theme.border, borderWidth: 1 }]}>
               <Text style={[styles.avatarText, { color: theme.accent }]}>{profile.name.slice(0, 2).toUpperCase()}</Text>
@@ -124,7 +137,8 @@ export default function LaborProfilePage() {
               ))}
             </View>
           </View>
-        </ScrollView>
+          </ScrollView>
+        )}
 
       </SafeAreaView>
     </View>

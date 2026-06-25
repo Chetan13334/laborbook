@@ -73,16 +73,7 @@ export default function SettingsPage() {
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [
-              styles.backButton,
-              { backgroundColor: palette.cardSoft, borderColor: palette.border },
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.backIcon, { color: palette.accent }]}>{'\u2190'}</Text>
-          </Pressable>
+          
 
           <View style={styles.topTitleWrap}>
             <Text style={[styles.pageTitle, { color: palette.text }]}>Settings</Text>
@@ -314,7 +305,7 @@ const styles = StyleSheet.create({
   },
   topTitleWrap: {
     flex: 1,
-    gap: 2,
+    gap: 5,
   },
   pageTitle: {
     fontSize: 24,

@@ -2,8 +2,9 @@ import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { useLaborers } from '@/database';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
@@ -16,6 +17,7 @@ type CashbookTab = 'cash-out' | 'cash-in';
 
 type CashbookViewRow = {
   id: string;
+  slug: string;
   day: string;
   weekday: string;
   label: string;
@@ -25,8 +27,9 @@ type CashbookViewRow = {
 };
 
 export default function CashbookPage() {
+  const router = useRouter();
   const { theme, mode } = useAppTheme();
-  const laborers = useLaborers();
+  const { data: laborers, loading, error } = useLaborers();
   const [tab, setTab] = useState<CashbookTab>('cash-out');
   const [query, setQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -129,7 +132,11 @@ export default function CashbookPage() {
           </View>
 
           <View style={styles.listSection}>
-            {filteredRows.length ? (
+            {loading ? (
+              <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 40 }} />
+            ) : error ? (
+              <Text style={{ color: theme.error, textAlign: 'center', marginVertical: 40 }}>Error loading cashbook</Text>
+            ) : filteredRows.length ? (
               filteredRows.map((row) => (
                 <View
                   key={`${row.day}-${row.weekday}-${row.amount ?? 'empty'}`}
@@ -140,10 +147,13 @@ export default function CashbookPage() {
                     <Text style={[styles.rowWeekday, { color: theme.textSecondary }]}>{row.weekday}</Text>
                   </View>
 
-                  <View style={styles.rowCopy}>
+                  <Pressable
+                    onPress={() => router.push(`/labor/${row.slug}/mainCashbook`)}
+                    style={({ pressed }) => [styles.rowCopy, pressed && styles.rowCopyPressed]}
+                  >
                     <Text style={[styles.rowTitle, { color: theme.text }]}>{row.label}</Text>
                     <Text style={[styles.rowMeta, { color: theme.textSecondary }]}>{row.notes}</Text>
-                  </View>
+                  </Pressable>
 
                   <Pressable
                     onPress={() => {
@@ -157,8 +167,7 @@ export default function CashbookPage() {
                     <Text style={[styles.rowAmount, { color: row.amount ? '#d93025' : theme.textSecondary }]}>
                       {row.amount ?? '₹'}
                     </Text>
-                    <Text style={[styles.rowAmountChevron, { color: theme.textSecondary }]}>{'>'}</Text>
-                  </Pressable>
+                    </Pressable>
                 </View>
               ))
             ) : (
@@ -359,6 +368,7 @@ function buildCashbookRows(laborers: ReturnType<typeof useLaborers>): CashbookVi
 
     const cashOutRow: CashbookViewRow = {
       id: `${laborer.slug}-out`,
+      slug: laborer.slug,
       day,
       weekday,
       label: laborer.name,
@@ -369,6 +379,7 @@ function buildCashbookRows(laborers: ReturnType<typeof useLaborers>): CashbookVi
 
     const cashInRow: CashbookViewRow = {
       id: `${laborer.slug}-in`,
+      slug: laborer.slug,
       day,
       weekday,
       label: laborer.name,
@@ -694,6 +705,10 @@ const styles = StyleSheet.create({
   rowCopy: {
     flex: 1,
     gap: 3,
+    paddingVertical: 4,
+  },
+  rowCopyPressed: {
+    opacity: 0.65,
   },
   rowTitle: {
     fontSize: 14,

@@ -3,7 +3,7 @@ import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { AppHeader } from '@/components/bars/app-header';
 import { appDatabase, buildReportSnapshot, useCashbookRows, useLaborers } from '@/database';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
@@ -14,7 +14,7 @@ const fontFamily = Platform.select({
 
 export default function ReportsPage() {
   const { theme, mode } = useAppTheme();
-  const laborers = useLaborers();
+  const { data: laborers, loading, error } = useLaborers();
   const rows = useCashbookRows();
   const report = buildReportSnapshot(laborers, appDatabase.labor.getProfiles(), rows);
 
@@ -30,20 +30,28 @@ export default function ReportsPage() {
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Reports</Text>
           </View>
 
-          <View style={[styles.hero, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <Text style={[styles.heroLabel, { color: theme.textSecondary }]}>Monthly summary</Text>
-            <Text style={[styles.heroValue, { color: theme.text }]}>{report.monthlyExpenses}</Text>
-            <Text style={[styles.heroCopy, { color: theme.textSecondary }]}>
-              Review labor cost, attendance patterns, and payment status in one clean snapshot.
-            </Text>
-          </View>
+          {loading ? (
+            <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 40 }} />
+          ) : error ? (
+            <Text style={{ color: theme.error, textAlign: 'center', marginVertical: 40 }}>Error loading reports</Text>
+          ) : (
+            <>
+              <View style={[styles.hero, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+                <Text style={[styles.heroLabel, { color: theme.textSecondary }]}>Monthly summary</Text>
+                <Text style={[styles.heroValue, { color: theme.text }]}>{report.monthlyExpenses}</Text>
+                <Text style={[styles.heroCopy, { color: theme.textSecondary }]}>
+                  Review labor cost, attendance patterns, and payment status in one clean snapshot.
+                </Text>
+              </View>
 
-          <View style={styles.timeline}>
-            <MetricRow label="Attendance rate" value={report.attendanceRate} color={theme.accent} />
-            <MetricRow label="Paid this month" value={report.paidThisMonth} color="#006a66" />
-            <MetricRow label="Pending due" value={report.pendingDue} color="#bb1712" />
-            <MetricRow label="Site transfers" value={String(report.siteTransfers)} color="#00531e" />
-          </View>
+              <View style={styles.timeline}>
+                <MetricRow label="Attendance rate" value={report.attendanceRate} color={theme.accent} />
+                <MetricRow label="Paid this month" value={report.paidThisMonth} color="#006a66" />
+                <MetricRow label="Pending due" value={report.pendingDue} color="#bb1712" />
+                <MetricRow label="Site transfers" value={String(report.siteTransfers)} color="#00531e" />
+              </View>
+            </>
+          )}
         </ScrollView>
 
         <AppBottomBar />

@@ -1,5 +1,5 @@
 import { usePathname, useRouter, type Href } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppTheme } from '@/components/app-theme';
 
 type BottomBarItem = {
@@ -18,11 +18,30 @@ const items: BottomBarItem[] = [
 export function AppBottomBar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme } = useAppTheme();
+  const { theme, mode } = useAppTheme();
+
+  // Theme-aware color tokens
+  const isLight = mode === 'light';
+  const navBg = isLight ? '#ffffff' : '#111111';
+  const navBorder = isLight ? '#e5e7eb' : '#1f2937';
+  const iconShellBg = isLight ? '#f3f4f6' : '#1a1a1a';
+  const iconShellActiveBg = isLight ? theme.accent : '#2a2a2a';
+  const iconActiveColor = '#ffffff';
+  const iconInactiveColor = isLight ? '#6b7280' : '#9a9a9a';
+  const labelActiveColor = isLight ? theme.accent : '#ffffff';
+  const labelInactiveColor = isLight ? '#6b7280' : '#9a9a9a';
 
   return (
     <View style={styles.shell} pointerEvents="box-none">
-      <View style={[styles.bottomNav, { backgroundColor: theme.surface }]}>
+      <View
+        style={[
+          styles.bottomNav,
+          {
+            backgroundColor: navBg,
+            borderColor: navBorder,
+          },
+        ]}
+      >
         {items.map((item) => {
           const active = isActive(pathname, item);
 
@@ -34,11 +53,25 @@ export function AppBottomBar() {
               }}
               style={({ pressed }) => [styles.navItem, pressed && styles.pressed]}
             >
-              <View style={[styles.iconShell, active && styles.iconShellActive]}>
-                <BottomIcon kind={item.icon} active={active} />
+              <View
+                style={[
+                  styles.iconShell,
+                  { backgroundColor: active ? iconShellActiveBg : iconShellBg },
+                ]}
+              >
+                <BottomIcon
+                  kind={item.icon}
+                  color={active ? iconActiveColor : iconInactiveColor}
+                />
               </View>
 
-              <Text style={[styles.navLabel, active ? styles.navLabelActive : styles.navLabelInactive]}>
+              <Text
+                style={[
+                  styles.navLabel,
+                  { color: active ? labelActiveColor : labelInactiveColor },
+                  active && styles.navLabelActive,
+                ]}
+              >
                 {item.label}
               </Text>
             </Pressable>
@@ -49,9 +82,7 @@ export function AppBottomBar() {
   );
 }
 
-function BottomIcon({ kind, active }: { kind: BottomBarItem['icon']; active: boolean }) {
-  const color = active ? '#ffffff' : '#9a9a9a';
-
+function BottomIcon({ kind, color }: { kind: BottomBarItem['icon']; color: string }) {
   if (kind === 'labor') {
     return (
       <View style={styles.laborIcon}>
@@ -72,6 +103,7 @@ function BottomIcon({ kind, active }: { kind: BottomBarItem['icon']; active: boo
     );
   }
 
+  // settings
   return (
     <View style={styles.settingsIcon}>
       <View style={[styles.settingsRing, { borderColor: color }]} />
@@ -87,6 +119,16 @@ function isActive(pathname: string | null, item: BottomBarItem) {
   return item.activeRoutes?.some((route) => pathname.startsWith(`${route}/`)) ?? false;
 }
 
+const shadow =
+  Platform.OS === 'android'
+    ? { elevation: 12 }
+    : {
+        shadowColor: '#000',
+        shadowOpacity: 0.12,
+        shadowRadius: 18,
+        shadowOffset: { width: 0, height: 8 },
+      };
+
 const styles = StyleSheet.create({
   shell: {
     position: 'absolute',
@@ -101,46 +143,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#111111',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1f1f1f',
     paddingHorizontal: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
+    ...(shadow as object),
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
   },
   iconShell: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#171717',
-  },
-  iconShellActive: {
-    backgroundColor: '#202020',
   },
   navLabel: {
-    marginTop: 4,
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '700',
-    color: '#9a9a9a',
   },
   navLabelActive: {
-    color: '#ffffff',
+    fontWeight: '800',
   },
-  navLabelInactive: {
-    color: '#9a9a9a',
-  },
+
+  /* Icons */
   laborIcon: {
     width: 22,
     height: 22,

@@ -1,3 +1,4 @@
+
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
@@ -5,9 +6,9 @@ import { AppHeader } from '@/components/bars/app-header';
 import { useLaborers } from '@/database';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { toSlug } from './labor-data';
+import { slugify as toSlug } from '@/database/helpers';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -18,7 +19,7 @@ const fontFamily = Platform.select({
 export default function LaborPage() {
   const router = useRouter();
   const { theme, mode } = useAppTheme();
-  const laborers = useLaborers();
+  const { data: laborers, loading, error } = useLaborers();
   const [query, setQuery] = useState('');
 
   const filteredLaborers = useMemo(() => {
@@ -58,21 +59,26 @@ export default function LaborPage() {
           <View style={[styles.searchShell, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
             <Text style={[styles.searchIcon, { color: theme.accent }]}>⌕</Text>
             <TextInput
+              style={[styles.searchInput, { color: theme.text }]}
+              placeholder="Search by name, role or amount..."
+              placeholderTextColor={theme.textSecondary}
               value={query}
               onChangeText={setQuery}
-              placeholder="Search by Name or Mobile number"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.searchInput, { color: theme.text }]}
             />
           </View>
 
           <Text style={[styles.sectionLabel, { color: theme.text }]}>MY LABORS</Text>
 
           <View style={styles.list}>
-            {filteredLaborers.map((laborer) => (
+            {loading && <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 40 }} />}
+            {error && <Text style={{ color: theme.error, textAlign: 'center' }}>Error loading laborers</Text>}
+            {!loading && !error && filteredLaborers.length === 0 && (
+               <Text style={{ color: theme.textSecondary, textAlign: 'center', marginVertical: 40 }}>No laborers found.</Text>
+            )}
+            {!loading && !error && filteredLaborers.map((laborer) => (
               <Pressable
                 key={laborer.name}
-                onPress={() => router.push(`/labor/${toSlug(laborer.name)}`)}
+                onPress={() => router.push(`/labor/${toSlug(laborer.name)}/mainCashbook`)}
                 style={({ pressed }) => [
                   styles.card,
                   { backgroundColor: theme.surfaceElevated, borderColor: theme.border },

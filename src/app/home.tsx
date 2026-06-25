@@ -3,7 +3,7 @@ import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { useRouter, type Href } from 'expo-router';
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type StatCard = {
@@ -79,10 +79,11 @@ const fontFamily = Platform.select({
   default: 'sans-serif',
 });
 
+
 export default function HomePage() {
   const router = useRouter();
   const { theme, mode } = useAppTheme();
-  const laborers = useLaborers();
+  const { data: laborers, loading, error } = useLaborers();
   const cashbookRows = useCashbookRows();
   const dashboard = buildDashboardSnapshot(laborers, cashbookRows);
 
@@ -125,11 +126,17 @@ export default function HomePage() {
               Track labor, attendance, and payments with a clean, premium workspace that feels fast on every screen.
             </Text>
 
-            <View style={styles.heroStatsRow}>
-              <HeroChip label="Laborers" value={String(dashboard.totalLabor)} />
-              <HeroChip label="Present" value={String(dashboard.presentToday)} />
-              <HeroChip label="Pending" value={dashboard.pendingPayments} accent />
-            </View>
+            {loading ? (
+              <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 20 }} />
+            ) : error ? (
+              <Text style={{ color: theme.error, marginVertical: 20 }}>Error loading dashboard data</Text>
+            ) : (
+              <View style={styles.heroStatsRow}>
+                <HeroChip label="Laborers" value={String(dashboard.totalLabor)} />
+                <HeroChip label="Present" value={String(dashboard.presentToday)} />
+                <HeroChip label="Pending" value={dashboard.pendingPayments} accent />
+              </View>
+            )}
 
             <Pressable
               onPress={() => router.push('/labor')}
