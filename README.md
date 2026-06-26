@@ -1,56 +1,84 @@
-# Welcome to your Expo app 👋
+# 📱 SiteBook
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+SiteBook is a modern labor management application built with **Expo (React Native)** and **Supabase**. It helps contractors, builders, and small businesses manage their workforce, track attendance, maintain cashbooks, and monitor labor-related activities from a single application.
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+* 👷 Manage labor profiles
+* 💰 Cashbook management (Cash In / Cash Out)
+* 📅 Attendance tracking
+* 📊 Reports and summaries
+* 🔔 Notifications
+* 🌙 Light & Dark theme support
+* ☁️ Cloud data storage with Supabase
+* 📱 Cross-platform support (Android, iOS & Web)
 
-   ```bash
-   npm install
-   ```
+## 🛠 Tech Stack
 
-2. Start the app
+* Expo
+* React Native
+* TypeScript
+* Expo Router
+* Supabase
+* React Native Async Storage
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Getting Started
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the repository
 
 ```bash
-npm run reset-project
+git clone <repository-url>
+cd SiteBook
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install dependencies
 
-### Other setup steps
+```bash
+npm install
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 3. Configure environment variables
 
-## Learn more
+Create a `.env` file in the project root and add:
 
-To learn more about developing your project with Expo, look at the following resources:
+```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 4. Run the application
 
-## Join the community
+```bash
+npm start
+```
 
-Join our community of developers creating universal apps.
+or
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm run android
+```
+
+```bash
+npm run ios
+```
+
+```bash
+npm run web
+```
+
+## 📌 Current Status
+
+The project is actively under development. Current modules include:
+
+* Labor Management
+* Cashbook
+* Attendance
+* Reports
+* Notifications
+* Settings
+
+More features and improvements will be added in future releases.
+
+## 📄 License
+
+This project is intended for learning and development purposes.
