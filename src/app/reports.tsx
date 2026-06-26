@@ -2,7 +2,7 @@ import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { AppHeader } from '@/components/bars/app-header';
-import { appDatabase, buildReportSnapshot, useCashbookRows, useLaborers } from '@/database';
+import { buildReportSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,7 +16,7 @@ export default function ReportsPage() {
   const { theme, mode } = useAppTheme();
   const { data: laborers, loading, error } = useLaborers();
   const rows = useCashbookRows();
-  const report = buildReportSnapshot(laborers, appDatabase.labor.getProfiles(), rows);
+  const report = buildReportSnapshot(laborers, {}, rows);
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>

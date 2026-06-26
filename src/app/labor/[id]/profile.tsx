@@ -1,6 +1,7 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { appDatabase, useLaborProfile } from '@/database';
+import { useLaborProfile } from '@/database';
+import { updateLabor } from '@/backend/api/laborers';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
@@ -94,9 +95,9 @@ export default function LaborProfilePage() {
               placeholderTextColor={theme.textSecondary}
               style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
             />
-            <Pressable
+              <Pressable
               onPress={() => {
-                appDatabase.labor.updateLabor(profile.id, {
+                updateLabor(profile.id, {
                   name,
                   role,
                   amount: dailyRate,
