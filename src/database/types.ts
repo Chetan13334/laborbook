@@ -1,6 +1,7 @@
 export type LaborStatus = 'Present' | 'Absent';
 
 export type Laborer = {
+  id: string;
   slug: string;
   initials: string;
   name: string;

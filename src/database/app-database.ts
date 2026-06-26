@@ -1,39 +1,12 @@
 import { CashbookRepository } from './cashbook-repository';
-import { LaborRepository } from './labor-repository';
 import { NotificationRepository } from './notification-repository';
 import { SettingsRepository } from './settings-repository';
-import type { CashbookRow, CreateLaborInput, Laborer, NotificationRecord } from './types';
+import type { CashbookRow, NotificationRecord } from './types';
 
 export class AppDatabase {
-  labor = new LaborRepository();
   cashbook = new CashbookRepository();
   notifications = new NotificationRepository();
   settings = new SettingsRepository();
-
-  createLabor(input: CreateLaborInput) {
-    const laborer = this.labor.createLabor(input);
-
-    this.notifications.addNotification({
-      id: `labor-${laborer.slug}-${Date.now()}`,
-      title: 'Labor added',
-      desc: `${laborer.name} was added to the demo database.`,
-      color: '#0053da',
-      createdAt: 'Just now',
-      unread: true,
-    });
-
-    return laborer;
-  }
-
-  updateLabor(slug: string, patch: Partial<Pick<Laborer, 'name' | 'role' | 'amount' | 'status' | 'badge' | 'badgeBg' | 'badgeText' | 'phone' | 'muted'>> & {
-    notes?: string;
-  }) {
-    return this.labor.updateLabor(slug, patch);
-  }
-
-  markLaborPresent(slug: string) {
-    return this.labor.markPresent(slug);
-  }
 
   addCashbookRow(row: CashbookRow) {
     this.cashbook.addRow(row);
@@ -70,11 +43,11 @@ export class AppDatabase {
 }
 
 const globalScope = globalThis as typeof globalThis & {
-  __LABORBOOK_DEMO_DB__?: AppDatabase;
+  __SiteBook_DEMO_DB__?: AppDatabase;
 };
 
-export const appDatabase = globalScope.__LABORBOOK_DEMO_DB__ ?? new AppDatabase();
+export const appDatabase = globalScope.__SiteBook_DEMO_DB__ ?? new AppDatabase();
 
-if (!globalScope.__LABORBOOK_DEMO_DB__) {
-  globalScope.__LABORBOOK_DEMO_DB__ = appDatabase;
+if (!globalScope.__SiteBook_DEMO_DB__) {
+  globalScope.__SiteBook_DEMO_DB__ = appDatabase;
 }

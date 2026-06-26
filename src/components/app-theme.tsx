@@ -1,6 +1,6 @@
-import { useColorScheme } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useColorScheme } from 'react-native';
 
 import { Colors, type ThemeColor } from '@/constants/theme';
 
@@ -17,7 +17,7 @@ type AppThemeContextValue = {
 };
 
 const AppThemeContext = createContext<AppThemeContextValue | null>(null);
-const STORAGE_KEY = 'laborbook.theme-mode';
+const STORAGE_KEY = 'SiteBook.theme-mode';
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();

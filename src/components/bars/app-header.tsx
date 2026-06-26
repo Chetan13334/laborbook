@@ -1,6 +1,6 @@
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useAppTheme } from '@/components/app-theme';
+import { useRouter } from 'expo-router';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -54,7 +54,7 @@ export function AppHeader() {
             <Text style={styles.avatarText}>LB</Text>
           </View>
           <View>
-            <Text style={[styles.brand, { color: theme.text }]}>LaborBook</Text>
+            <Text style={[styles.brand, { color: theme.text }]}>SiteBook</Text>
             <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>Operations dashboard</Text>
           </View>
         </View>

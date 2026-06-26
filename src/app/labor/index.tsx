@@ -1,4 +1,3 @@
-
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
@@ -6,9 +5,8 @@ import { AppHeader } from '@/components/bars/app-header';
 import { useLaborers } from '@/database';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { slugify as toSlug } from '@/database/helpers';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -21,6 +19,13 @@ export default function LaborPage() {
   const { theme, mode } = useAppTheme();
   const { data: laborers, loading, error } = useLaborers();
   const [query, setQuery] = useState('');
+
+  console.log('[LaborIndex] hook output:', {
+    dataLength: laborers.length,
+    loading,
+    error,
+    laborers,
+  });
 
   const filteredLaborers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -44,7 +49,7 @@ export default function LaborPage() {
 
           <View style={styles.topRow}>
             <View>
-              <Text style={[styles.brand, { color: theme.text }]}>Laborbook</Text>
+              <Text style={[styles.brand, { color: theme.text }]}>SiteBook</Text>
               <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>My labors</Text>
             </View>
 
@@ -73,12 +78,12 @@ export default function LaborPage() {
             {loading && <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 40 }} />}
             {error && <Text style={{ color: theme.error, textAlign: 'center' }}>Error loading laborers</Text>}
             {!loading && !error && filteredLaborers.length === 0 && (
-               <Text style={{ color: theme.textSecondary, textAlign: 'center', marginVertical: 40 }}>No laborers found.</Text>
+              <Text style={{ color: theme.textSecondary, textAlign: 'center', marginVertical: 40 }}>No laborers found.</Text>
             )}
             {!loading && !error && filteredLaborers.map((laborer) => (
               <Pressable
-                key={laborer.name}
-                onPress={() => router.push(`/labor/${toSlug(laborer.name)}/mainCashbook`)}
+                key={laborer.id}
+                onPress={() => router.push(`/labor/${laborer.id}/mainCashbook`)}
                 style={({ pressed }) => [
                   styles.card,
                   { backgroundColor: theme.surfaceElevated, borderColor: theme.border },

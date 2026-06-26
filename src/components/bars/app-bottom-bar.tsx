@@ -1,6 +1,6 @@
+import { useAppTheme } from '@/components/app-theme';
 import { usePathname, useRouter, type Href } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useAppTheme } from '@/components/app-theme';
 
 type BottomBarItem = {
   label: string;
@@ -10,7 +10,7 @@ type BottomBarItem = {
 };
 
 const items: BottomBarItem[] = [
-  { label: 'Labor', icon: 'labor', route: '/labor', activeRoutes: ['/labor'] },
+  { label: 'Labor', icon: 'labor', route: '/', activeRoutes: ['/', '/labor'] },
   { label: 'Cash book', icon: 'cashbook', route: '/cashbook', activeRoutes: ['/cashbook'] },
   { label: 'Settings', icon: 'settings', route: '/settings', activeRoutes: ['/settings'] },
 ];

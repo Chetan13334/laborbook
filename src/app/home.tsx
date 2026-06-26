@@ -3,7 +3,7 @@ import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { useRouter, type Href } from 'expo-router';
-import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type StatCard = {
@@ -87,6 +87,22 @@ export default function HomePage() {
   const cashbookRows = useCashbookRows();
   const dashboard = buildDashboardSnapshot(laborers, cashbookRows);
 
+  console.log('[Home] laborers:', laborers, 'length:', laborers.length);
+
+  if (loading) {
+    return (
+      <View style={[styles.screen, { backgroundColor: theme.background }]}>
+        <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
+        <AppBackdrop />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.accent} />
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
@@ -100,7 +116,7 @@ export default function HomePage() {
                   <Text style={styles.avatarText}>LB</Text>
                 </View>
                 <View>
-                  <Text style={[styles.brand, { color: theme.text }]}>LaborBook</Text>
+                  <Text style={[styles.brand, { color: theme.text }]}>SiteBook</Text>
                   <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>Operations dashboard</Text>
                 </View>
               </View>
@@ -111,7 +127,7 @@ export default function HomePage() {
             </View>
           </View>
 
-          <View style={[styles.heroCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+          {/* <View style={[styles.heroCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
             <View style={styles.heroTopRow}>
               <View>
                 <Text style={[styles.heroEyebrow, { color: theme.accent }]}>Today at a glance</Text>
@@ -126,9 +142,7 @@ export default function HomePage() {
               Track labor, attendance, and payments with a clean, premium workspace that feels fast on every screen.
             </Text>
 
-            {loading ? (
-              <ActivityIndicator size="large" color={theme.accent} style={{ marginVertical: 20 }} />
-            ) : error ? (
+            {error ? (
               <Text style={{ color: theme.error, marginVertical: 20 }}>Error loading dashboard data</Text>
             ) : (
               <View style={styles.heroStatsRow}>
@@ -145,7 +159,7 @@ export default function HomePage() {
               <Text style={styles.heroButtonText}>Open Labor</Text>
               <Text style={styles.heroButtonArrow}>{'\u2192'}</Text>
             </Pressable>
-          </View>
+          </View> */}
 
           <View style={styles.sectionSpacing}>
             <View style={styles.sectionHeader}>
@@ -208,7 +222,7 @@ export default function HomePage() {
 
             <View style={styles.laborerStack}>
               {laborers.map((laborer) => (
-                <View key={laborer.name} style={[styles.laborerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }, laborer.muted && styles.laborerMuted]}>
+                <View key={laborer.id} style={[styles.laborerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }, laborer.muted && styles.laborerMuted]}>
                   <View style={[styles.initialsBubble, { backgroundColor: mode === 'dark' ? theme.background : theme.accentSoft, borderColor: theme.border, borderWidth: 1 }]}>
                     <Text style={[styles.initialsText, { color: theme.accent }]}>{laborer.initials}</Text>
                   </View>
@@ -334,6 +348,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     paddingHorizontal: 16,

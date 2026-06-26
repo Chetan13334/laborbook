@@ -1,3 +1,4 @@
+import { supabase } from '@/backend/client';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
@@ -24,6 +25,35 @@ export default function SettingsPage() {
   const router = useRouter();
   const { theme, mode, setMode } = useAppTheme();
   const settings = useSettings();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            console.log('Attempting logout...');
+            const { error } = await supabase.auth.signOut();
+            console.log('Logout result:', { error });
+            if (error) {
+              Alert.alert('Error', `Failed to logout: ${error.message}`);
+            } else {
+              console.log('Logout successful, navigating to /');
+              router.replace('/');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const palette = mode === 'dark'
     ? {
@@ -97,7 +127,7 @@ export default function SettingsPage() {
                 <Text style={[styles.heroAvatarText, { color: palette.accent }]}>LB</Text>
               </View>
               <View style={styles.heroCopy}>
-                <Text style={[styles.heroName, { color: palette.text }]}>LaborBook Admin</Text>
+                <Text style={[styles.heroName, { color: palette.text }]}>SiteBook Admin</Text>
                 <Text style={[styles.heroMeta, { color: palette.subtext }]}>Manage labor, payments, and alerts from one place</Text>
               </View>
             </View>
@@ -138,6 +168,20 @@ export default function SettingsPage() {
             />
           </View>
 
+
+          <View
+            style={[
+              styles.sectionCard,
+              { backgroundColor: palette.card, borderColor: palette.border, shadowColor: palette.shadow },
+            ]}
+          >
+            <Pressable
+              onPress={handleLogout}
+              style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
+            >
+              <Text style={[styles.logoutButtonText, { color: '#ef4444' }]}>Log Out</Text>
+            </Pressable>
+          </View>
 
           <View style={[styles.footerCard, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
             <Text style={[styles.footerText, { color: palette.subtext }]}>
@@ -508,5 +552,19 @@ const styles = StyleSheet.create({
   pressed: {
     transform: [{ scale: 0.98 }],
     opacity: 0.92,
+  },
+  logoutButton: {
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '800',
+    fontFamily,
   },
 });

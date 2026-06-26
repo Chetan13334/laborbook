@@ -1,6 +1,6 @@
-# LaborBook Project
+# SiteBook Project
 
-Welcome to the **LaborBook** Expo application! This repository contains a React Native (Expo) app designed for managing laborers, cashbooks, attendance, and settlements.
+Welcome to the **SiteBook** Expo application! This repository contains a React Native (Expo) app designed for managing laborers, cashbooks, attendance, and settlements.
 
 Below is a highly detailed, deep dive into the project's architecture and folder structure, providing context on exactly what each folder and file is responsible for. This document is perfect for giving context to AI assistants or onboarding new developers.
 

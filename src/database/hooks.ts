@@ -1,7 +1,7 @@
 import { useSyncExternalStore, useState, useEffect } from 'react';
 import { appDatabase } from './app-database';
 import type { Laborer, LaborProfile } from './types';
-import { LaborersService } from '@/backend/services/laborers';
+import { fetchLaborers, fetchLaborProfile } from '@/backend/api/laborers';
 
 function useDatabaseSnapshot<T>(subscribe: (listener: () => void) => () => void, selector: () => T): T {
   return useSyncExternalStore(subscribe, selector, selector);
@@ -15,11 +15,17 @@ export function useLaborers() {
   useEffect(() => {
     let mounted = true;
     async function fetch() {
+      console.log('[useLaborers] loading started');
       setLoading(true);
-      const { data: fetchResult, error: fetchError } = await LaborersService.fetchLaborers();
+      const result = await fetchLaborers();
+      console.log('[useLaborers] service result:', result);
       if (mounted) {
-        if (fetchError) setError(fetchError);
-        if (fetchResult) setData(fetchResult);
+        if (result.error) setError(result.error);
+        if (result.data) setData(result.data);
+        console.log('[useLaborers] setting state:', {
+          dataLength: result.data?.length ?? 0,
+          error: result.error,
+        });
         setLoading(false);
       }
     }
@@ -38,6 +44,7 @@ export function useLaborProfile(id?: string) {
   useEffect(() => {
     let mounted = true;
     async function fetch() {
+      console.log('[useLaborProfile] incoming id:', id);
       if (!id) {
         if (mounted) {
           setData(null);
@@ -47,11 +54,12 @@ export function useLaborProfile(id?: string) {
       }
       
       setLoading(true);
-      const { data: fetchResult, error: fetchError } = await LaborersService.fetchLaborProfile(id);
+      const result = await fetchLaborProfile(id);
+      console.log('[useLaborProfile] service result:', result);
       
       if (mounted) {
-        if (fetchError) setError(fetchError);
-        if (fetchResult) setData(fetchResult);
+        if (result.error) setError(result.error);
+        if (result.data) setData(result.data);
         setLoading(false);
       }
     }
