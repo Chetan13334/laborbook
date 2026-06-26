@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "laborbook",
-    "slug": "laborbook",
+    "name": "SiteBook",
+    "slug": "SiteBook",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "laborbook",
+    "scheme": "SiteBook",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.chetan1300.laborbook"
+      "package": "com.chetan1300.SiteBook"
     },
     "web": {
       "output": "static",

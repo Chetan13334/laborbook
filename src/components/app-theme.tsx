@@ -1,10 +1,11 @@
-import { useColorScheme } from 'react-native';
+import * as SystemUI from 'expo-system-ui';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useColorScheme } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Colors, type ThemeColor } from '@/constants/theme';
 
 export type ThemeMode = 'light' | 'dark';
-export type AppTheme = (typeof Colors.light) & {
+export type AppTheme = Record<ThemeColor, string> & {
   mode: ThemeMode;
 };
 
@@ -16,7 +17,7 @@ type AppThemeContextValue = {
 };
 
 const AppThemeContext = createContext<AppThemeContextValue | null>(null);
-const STORAGE_KEY = 'laborbook.theme-mode';
+const STORAGE_KEY = 'SiteBook.theme-mode';
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();
@@ -33,14 +34,16 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') {
+      SystemUI.setBackgroundColorAsync(Colors[mode].background).catch(() => {});
       return;
     }
 
     window.localStorage.setItem(STORAGE_KEY, mode);
+    SystemUI.setBackgroundColorAsync(Colors[mode].background).catch(() => {});
   }, [mode]);
 
   const theme = useMemo(
-    () => ({
+    (): AppTheme => ({
       ...Colors[mode],
       mode,
     }),

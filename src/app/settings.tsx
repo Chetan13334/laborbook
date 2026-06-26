@@ -1,18 +1,19 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import {
-  Alert,
-  Platform,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBottomBar } from '@/components/app-bottom-bar';
+import { supabase } from '@/backend/client';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { appDatabase, useSettings } from '@/database';
+import { useRouter } from 'expo-router';
+import {
+    Alert,
+    Platform,
+    Pressable,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -22,45 +23,74 @@ const fontFamily = Platform.select({
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { mode, setMode } = useAppTheme();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { theme, mode, setMode } = useAppTheme();
+  const settings = useSettings();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            console.log('Attempting logout...');
+            const { error } = await supabase.auth.signOut();
+            console.log('Logout result:', { error });
+            if (error) {
+              Alert.alert('Error', `Failed to logout: ${error.message}`);
+            } else {
+              console.log('Logout successful, navigating to /');
+              router.replace('/');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const palette = mode === 'dark'
     ? {
-        screen: '#0e1324',
-        card: 'rgba(20, 27, 48, 0.92)',
-        cardSoft: 'rgba(255,255,255,0.05)',
-        border: 'rgba(255,255,255,0.10)',
-        text: '#eef0ff',
-        subtext: '#a7b0cf',
-        accent: '#29fcf3',
-        accentDark: '#8ffa9b',
-        chip: 'rgba(41,252,243,0.10)',
-        chipBorder: 'rgba(41,252,243,0.30)',
-        muted: '#131b2e',
+        screen: theme.background,
+        card: theme.surfaceElevated,
+        cardSoft: theme.accentSoft,
+        border: theme.border,
+        text: theme.text,
+        subtext: theme.textSecondary,
+        accent: theme.accent,
+        accentDark: theme.success,
+        chip: theme.accentSoft,
+        chipBorder: theme.border,
+        muted: theme.background,
         shadow: '#000',
         track: 'rgba(255,255,255,0.10)',
         knob: '#ffffff',
-        glowA: 'rgba(0,76,202,0.32)',
-        glowB: 'rgba(41,252,243,0.18)',
+        glowA: 'rgba(0,76,202,0.15)',
+        glowB: 'rgba(41,252,243,0.08)',
       }
     : {
-        screen: '#faf8ff',
-        card: 'rgba(255,255,255,0.82)',
-        cardSoft: 'rgba(255,255,255,0.62)',
-        border: 'rgba(255,255,255,0.82)',
-        text: '#131b2e',
-        subtext: '#424656',
-        accent: '#004cca',
-        accentDark: '#00531e',
-        chip: 'rgba(0,76,202,0.08)',
-        chipBorder: 'rgba(0,76,202,0.14)',
-        muted: '#eef1ff',
-        shadow: '#004cca',
+        screen: theme.background,
+        card: theme.surfaceElevated,
+        cardSoft: theme.accentSoft,
+        border: theme.border,
+        text: theme.text,
+        subtext: theme.textSecondary,
+        accent: theme.accent,
+        accentDark: theme.success,
+        chip: theme.accentSoft,
+        chipBorder: theme.border,
+        muted: theme.background,
+        shadow: 'rgba(0,0,0,0.05)',
         track: '#d8e2ff',
         knob: '#ffffff',
-        glowA: 'rgba(0,76,202,0.12)',
-        glowB: 'rgba(41,252,243,0.10)',
+        glowA: 'rgba(0,76,202,0.06)',
+        glowB: 'rgba(41,252,243,0.05)',
       };
 
   return (
@@ -73,24 +103,11 @@ export default function SettingsPage() {
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topBar}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [
-              styles.backButton,
-              { backgroundColor: palette.cardSoft, borderColor: palette.border },
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.backIcon, { color: palette.accent }]}>{'\u2190'}</Text>
-          </Pressable>
+          
 
           <View style={styles.topTitleWrap}>
             <Text style={[styles.pageTitle, { color: palette.text }]}>Settings</Text>
             <Text style={[styles.pageSubTitle, { color: palette.subtext }]}>Control the app experience</Text>
-          </View>
-
-          <View style={styles.headerBadge}>
-            <Text style={[styles.headerBadgeText, { color: palette.accentDark }]}>Pro</Text>
           </View>
         </View>
 
@@ -110,15 +127,13 @@ export default function SettingsPage() {
                 <Text style={[styles.heroAvatarText, { color: palette.accent }]}>LB</Text>
               </View>
               <View style={styles.heroCopy}>
-                <Text style={[styles.heroName, { color: palette.text }]}>LaborBook Admin</Text>
+                <Text style={[styles.heroName, { color: palette.text }]}>SiteBook Admin</Text>
                 <Text style={[styles.heroMeta, { color: palette.subtext }]}>Manage labor, payments, and alerts from one place</Text>
               </View>
             </View>
 
             <View style={styles.heroStats}>
-              <StatPill label="Version" value="1.0.0" palette={palette} />
               <StatPill label="Mode" value={mode === 'dark' ? 'Dark' : 'Light'} palette={palette} />
-              <StatPill label="Cloud" value="Synced" palette={palette} />
             </View>
           </View>
 
@@ -134,7 +149,11 @@ export default function SettingsPage() {
               title="Dark Mode"
               description="Switch the app to a darker, low-light friendly look."
               enabled={mode === 'dark'}
-              onToggle={() => setMode(mode === 'dark' ? 'light' : 'dark')}
+              onToggle={() => {
+                const nextMode = mode === 'dark' ? 'light' : 'dark';
+                setMode(nextMode);
+                appDatabase.settings.setMode(nextMode);
+              }}
               palette={palette}
             />
 
@@ -143,11 +162,12 @@ export default function SettingsPage() {
             <SettingSwitch
               title="Push Notifications"
               description="Get updates for payments, attendance, and important reminders."
-              enabled={notificationsEnabled}
-              onToggle={() => setNotificationsEnabled((value) => !value)}
+              enabled={settings.notificationsEnabled ?? false}
+              onToggle={() => appDatabase.settings.toggleNotifications()}
               palette={palette}
             />
           </View>
+
 
           <View
             style={[
@@ -155,39 +175,12 @@ export default function SettingsPage() {
               { backgroundColor: palette.card, borderColor: palette.border, shadowColor: palette.shadow },
             ]}
           >
-            <Text style={[styles.sectionTitle, { color: palette.text }]}>Preferences</Text>
-
-            <SettingsRow
-              label="Language"
-              value="English"
-              palette={palette}
-              onPress={() => {}}
-            />
-            <SettingsRow
-              label="Currency"
-              value="INR (₹)"
-              palette={palette}
-              onPress={() => {}}
-            />
-            <SettingsRow
-              label="Data Backup"
-              value="Auto sync enabled"
-              palette={palette}
-              onPress={() => {}}
-            />
-          </View>
-
-          <View
-            style={[
-              styles.sectionCard,
-              { backgroundColor: palette.card, borderColor: palette.border, shadowColor: palette.shadow },
-            ]}
-          >
-            <Text style={[styles.sectionTitle, { color: palette.text }]}>Security</Text>
-
-            <SettingsRow label="Change PIN" value="Update login PIN" palette={palette} onPress={() => {}} />
-            <SettingsRow label="Privacy" value="Permissions & access" palette={palette} onPress={() => {}} />
-            <SettingsRow label="Backup Now" value="Last backup today" palette={palette} onPress={() => {}} />
+            <Pressable
+              onPress={handleLogout}
+              style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
+            >
+              <Text style={[styles.logoutButtonText, { color: '#ef4444' }]}>Log Out</Text>
+            </Pressable>
           </View>
 
           <View style={[styles.footerCard, { backgroundColor: palette.cardSoft, borderColor: palette.border }]}>
@@ -248,6 +241,8 @@ function SettingSwitch({
     knob: string;
   };
 }) {
+  const { theme } = useAppTheme();
+
   return (
     <Pressable onPress={onToggle} style={({ pressed }) => [styles.switchRow, pressed && styles.pressed]}>
       <View style={styles.switchCopy}>
@@ -257,7 +252,7 @@ function SettingSwitch({
       <View
         style={[
           styles.switchTrack,
-          { backgroundColor: enabled ? palette.accent : palette.track },
+          { backgroundColor: enabled ? theme.success : palette.track },
         ]}
       >
         <View
@@ -354,7 +349,7 @@ const styles = StyleSheet.create({
   },
   topTitleWrap: {
     flex: 1,
-    gap: 2,
+    gap: 5,
   },
   pageTitle: {
     fontSize: 24,
@@ -435,6 +430,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     flexDirection: 'row',
     gap: 8,
+    paddingRight: 250,  
   },
   statPill: {
     flex: 1,
@@ -556,5 +552,19 @@ const styles = StyleSheet.create({
   pressed: {
     transform: [{ scale: 0.98 }],
     opacity: 0.92,
+  },
+  logoutButton: {
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '800',
+    fontFamily,
   },
 });

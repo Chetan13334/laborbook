@@ -1,9 +1,10 @@
+import { AppBackdrop } from '@/components/app-backdrop';
+import { useAppTheme } from '@/components/app-theme';
+import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { useNotifications } from '@/database';
 import { useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBottomBar } from '@/components/app-bottom-bar';
-import { AppBackdrop } from '@/components/app-backdrop';
-import { useAppTheme } from '@/components/app-theme';
 
 const fontFamily = Platform.select({
   web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
@@ -14,6 +15,7 @@ const fontFamily = Platform.select({
 export default function NotificationsPage() {
   const router = useRouter();
   const { theme, mode } = useAppTheme();
+  const notifications = useNotifications();
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -28,27 +30,16 @@ export default function NotificationsPage() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <NotifyCard
-            title="Payment reminder"
-            desc="Rajesh Kumar has a pending amount of ₹12,400."
-            color={theme.accent}
-            themeText={theme.text}
-            themeSecondary={theme.textSecondary}
-          />
-          <NotifyCard
-            title="Attendance updated"
-            desc="18 laborers are marked present today."
-            color="#006a66"
-            themeText={theme.text}
-            themeSecondary={theme.textSecondary}
-          />
-          <NotifyCard
-            title="Backup completed"
-            desc="Your data backup finished successfully a few minutes ago."
-            color="#00531e"
-            themeText={theme.text}
-            themeSecondary={theme.textSecondary}
-          />
+          {notifications.map((notification) => (
+            <NotifyCard
+              key={notification.id}
+              title={notification.title}
+              desc={notification.desc}
+              color={notification.color}
+              themeText={theme.text}
+              themeSecondary={theme.textSecondary}
+            />
+          ))}
         </ScrollView>
 
         <AppBottomBar />
@@ -70,8 +61,10 @@ function NotifyCard({
   themeText: string;
   themeSecondary: string;
 }) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
       <View style={[styles.dot, { backgroundColor: color }]} />
       <View style={styles.copy}>
         <Text style={[styles.cardTitle, { color: themeText }]}>{title}</Text>
@@ -120,6 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderRadius: 20,
+    borderWidth: 1,
     backgroundColor: 'rgba(255,255,255,0.84)',
     shadowColor: '#000',
     shadowOpacity: 0.06,
