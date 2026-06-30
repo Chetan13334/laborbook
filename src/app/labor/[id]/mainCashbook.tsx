@@ -1,5 +1,6 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import { Fonts } from '@/constants/theme';
 import { appDatabase } from '@/database';
 import { useLaborProfile } from '@/database';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -44,11 +45,12 @@ const rows: LedgerRow[] = [
   { day: '10', weekday: 'Wed', attendance: ['A', 'P', 'OT'] },
 ];
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+
+// const { data, loading, error } = useLaborCashbook(id);
+
+// console.log("MainCashbook:", data);
+
+const fontFamily = Fonts.sans;
 
 const pageColors = {
   light: {

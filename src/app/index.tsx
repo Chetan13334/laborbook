@@ -3,17 +3,12 @@ import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { AppHeader } from '@/components/bars/app-header';
+import { Fonts } from '@/constants/theme';
 import { useLaborers } from '@/database';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
 
 export default function LaborPage() {
   const router = useRouter();
@@ -145,14 +140,14 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     fontWeight: '900',
     letterSpacing: -0.5,
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   brandMeta: {
     marginTop: 2,
     fontSize: 14,
     lineHeight: 18,
     fontWeight: '600',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   addButton: {
     minHeight: 44,
@@ -167,7 +162,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '800',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   searchShell: {
     minHeight: 54,
@@ -183,20 +178,20 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 22,
     fontWeight: '700',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   sectionLabel: {
     fontSize: 14,
     lineHeight: 18,
     fontWeight: '700',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   list: {
     gap: 8,
@@ -225,7 +220,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 22,
     fontWeight: '900',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   copy: {
     flex: 1,
@@ -235,13 +230,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 24,
     fontWeight: '900',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   meta: {
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '600',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   pressed: {
     transform: [{ scale: 0.98 }],
