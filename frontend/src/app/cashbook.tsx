@@ -6,7 +6,7 @@ import { useLaborers } from '@/hooks/use-backend-data';
 import type { LaborerRecord as Laborer } from '@/types/app';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fontFamily = Fonts.sans;
@@ -146,7 +146,7 @@ export default function CashbookPage() {
                   </View>
 
                   <Pressable
-                    onPress={() => router.push(`/labor/${row.slug}/mainCashbook`)}
+                    onPress={() => router.push(`/labor/${row.slug}/main-cashbook`)}
                     style={({ pressed }) => [styles.rowCopy, pressed && styles.rowCopyPressed]}
                   >
                     <Text style={[styles.rowTitle, { color: theme.text }]}>{row.label}</Text>

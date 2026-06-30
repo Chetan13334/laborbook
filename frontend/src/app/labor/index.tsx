@@ -80,7 +80,7 @@ export default function LaborPage() {
             {!loading && !error && filteredLaborers.map((laborer) => (
               <Pressable
                 key={laborer.id}
-                onPress={() => router.push(`/labor/${laborer.id}/mainCashbook`)}
+                onPress={() => router.push(`/labor/${laborer.id}/main-cashbook`)}
                 style={({ pressed }) => [
                   styles.card,
                   { backgroundColor: theme.surfaceElevated, borderColor: theme.border },
