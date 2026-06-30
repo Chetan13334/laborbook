@@ -1,4 +1,5 @@
 import { useAppTheme } from '@/components/app-theme';
+import { Fonts } from '@/constants/theme';
 import { usePathname, useRouter, type Href } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -165,6 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '700',
+    fontFamily: Fonts.sans,
   },
   navLabelActive: {
     fontWeight: '800',

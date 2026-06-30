@@ -2,6 +2,8 @@ import { useSyncExternalStore, useState, useEffect } from 'react';
 import { appDatabase } from './app-database';
 import type { Laborer, LaborProfile } from './types';
 import { fetchLaborers, fetchLaborProfile } from '@/backend/api/laborers';
+import { CashbookService, type CashbookEntry } from "@/backend/services/cashbook";
+
 
 function useDatabaseSnapshot<T>(subscribe: (listener: () => void) => () => void, selector: () => T): T {
   return useSyncExternalStore(subscribe, selector, selector);
@@ -34,6 +36,38 @@ export function useLaborers() {
   }, []);
 
   return { data, loading, error };
+}
+
+
+
+export function useLaborCashbook(laborerId: string) {
+  const [data, setData] = useState<CashbookEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!laborerId) return;
+
+    async function loadCashbook() {
+      setLoading(true);
+
+      const result = await CashbookService.getLaborCashbook(laborerId);
+
+      console.log("Cashbook Hook:", result);
+
+      setData(result.data);
+      setError(result.error);
+      setLoading(false);
+    }
+
+    loadCashbook();
+  }, [laborerId]);
+
+  return {
+    data,
+    loading,
+    error,
+  };
 }
 
 export function useLaborProfile(id?: string) {

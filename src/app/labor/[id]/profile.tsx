@@ -1,5 +1,6 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import { Fonts } from '@/constants/theme';
 import { useLaborProfile } from '@/database';
 import { updateLabor } from '@/backend/api/laborers';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,11 +8,7 @@ import { useState, useEffect } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 export default function LaborProfilePage() {
   const router = useRouter();
@@ -49,95 +46,65 @@ export default function LaborProfilePage() {
           <Text style={{ color: theme.error, textAlign: 'center', marginVertical: 40 }}>Error loading profile</Text>
         ) : (
           <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <View style={[styles.avatar, { backgroundColor: mode === 'dark' ? theme.background : theme.accentSoft, borderColor: theme.border, borderWidth: 1 }]}>
-              <Text style={[styles.avatarText, { color: theme.accent }]}>{profile.name.slice(0, 2).toUpperCase()}</Text>
+            <View style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <View style={[styles.avatar, { backgroundColor: mode === 'dark' ? theme.background : theme.accentSoft, borderColor: theme.border, borderWidth: 1 }]}>
+                <Text style={[styles.avatarText, { color: theme.accent }]}>{profile.name.slice(0, 2).toUpperCase()}</Text>
+              </View>
+              <Text style={[styles.name, { color: theme.text }]}>{profile.name}</Text>
+              <Text style={[styles.role, { color: theme.textSecondary }]}>{profile.role}</Text>
+
+              <View style={styles.actionRow}>
+                <Pressable style={[styles.actionButton, { backgroundColor: theme.accent }]}>
+                  <Text style={[styles.actionButtonText, { color: theme.background }]}>WhatsApp</Text>
+                </Pressable>
+                <Pressable style={[styles.secondaryButton, { backgroundColor: theme.accentSoft, borderColor: theme.border }]}>
+                  <Text style={[styles.secondaryButtonText, { color: theme.accent }]}>Export PDF</Text>
+                </Pressable>
+              </View>
             </View>
-            <Text style={[styles.name, { color: theme.text }]}>{profile.name}</Text>
-            <Text style={[styles.role, { color: theme.textSecondary }]}>{profile.role}</Text>
 
-            <View style={styles.actionRow}>
-              <Pressable style={[styles.actionButton, { backgroundColor: theme.accent }]}>
-                <Text style={[styles.actionButtonText, { color: theme.background }]}>WhatsApp</Text>
-              </Pressable>
-              <Pressable style={[styles.secondaryButton, { backgroundColor: theme.accentSoft, borderColor: theme.border }]}>
-                <Text style={[styles.secondaryButtonText, { color: theme.accent }]}>Export PDF</Text>
-              </Pressable>
+            <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <InfoRow label="Daily Rate" value={profile.dailyRate} accent />
+              <InfoRow label="Joined Date" value={profile.joinedDate} />
+              <InfoRow label="Work Sites" value={profile.workSites} />
             </View>
-          </View>
 
-          <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <InfoRow label="Daily Rate" value={profile.dailyRate} accent />
-            <InfoRow label="Joined Date" value={profile.joinedDate} />
-            <InfoRow label="Work Sites" value={profile.workSites} />
-          </View>
-
-          <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}> 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Edit Profile</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Labor name"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
-            />
-            <TextInput
-              value={role}
-              onChangeText={setRole}
-              placeholder="Role"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
-            />
-            <TextInput
-              value={dailyRate}
-              onChangeText={setDailyRate}
-              placeholder="Daily rate"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
-            />
+            <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Edit Profile</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Labor name"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              />
+              <TextInput
+                value={role}
+                onChangeText={setRole}
+                placeholder="Role"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              />
+              <TextInput
+                value={dailyRate}
+                onChangeText={setDailyRate}
+                placeholder="Daily rate"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              />
               <Pressable
-              onPress={() => {
-                updateLabor(profile.id, {
-                  name,
-                  role,
-                  amount: dailyRate,
-                });
-              }}
-              style={({ pressed }) => [styles.saveButton, { backgroundColor: theme.accent }, pressed && styles.pressed]}
-            >
-              <Text style={[styles.saveButtonText, { color: theme.background }]}>Save Changes</Text>
-            </Pressable>
-          </View>
-
-          <View style={[styles.duesCard, { backgroundColor: theme.accentSoft, borderColor: theme.border }]}>
-            <Text style={[styles.duesLabel, { color: theme.accent }]}>Pending Dues</Text>
-            <Text style={[styles.duesValue, { color: theme.text }]}>{profile.pendingDues}</Text>
-            <Text style={[styles.duesNote, { color: theme.textSecondary }]}>{profile.duesNote}</Text>
-          </View>
-
-          <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <View style={styles.statRow}>
-              <StatPill label="Present" value={String(profile.attendance.present)} color={theme.success} />
-              <StatPill label="Absent" value={String(profile.attendance.absent)} color={theme.warning} />
-              <StatPill label="Upcoming" value={String(profile.attendance.upcoming)} color={theme.accent} />
+                onPress={() => {
+                  updateLabor(profile.id, {
+                    name,
+                    role,
+                    amount: dailyRate,
+                  });
+                }}
+                style={({ pressed }) => [styles.saveButton, { backgroundColor: theme.accent }, pressed && styles.pressed]}
+              >
+                <Text style={[styles.saveButtonText, { color: theme.background }]}>Save Changes</Text>
+              </Pressable>
             </View>
-          </View>
-
-          <View style={[styles.section, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Activity</Text>
-            <View style={styles.stack}>
-              {profile.activity.map((item) => (
-                <View key={item.title} style={[styles.activityItem, { borderColor: theme.border }]}>
-                  <View style={[styles.dot, { backgroundColor: item.color }]} />
-                  <View style={styles.activityCopy}>
-                    <Text style={[styles.activityTitle, { color: theme.text }]}>{item.title}</Text>
-                    <Text style={[styles.activityTime, { color: theme.textSecondary }]}>{item.time}</Text>
-                    <Text style={[styles.activityDescription, { color: theme.textSecondary }]}>{item.description}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
           </ScrollView>
         )}
 

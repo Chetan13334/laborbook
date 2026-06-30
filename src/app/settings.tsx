@@ -2,6 +2,7 @@ import { supabase } from '@/backend/client';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { Fonts } from '@/constants/theme';
 import { appDatabase, useSettings } from '@/database';
 import { useRouter } from 'expo-router';
 import {
@@ -15,11 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 export default function SettingsPage() {
   const router = useRouter();
