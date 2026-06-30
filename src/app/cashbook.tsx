@@ -1,17 +1,14 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
-import { useLaborers } from '@/database';
+import { Fonts } from '@/constants/theme';
+import { useLaborers, type Laborer } from '@/database';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 type CashbookTab = 'cash-out' | 'cash-in';
 
@@ -358,7 +355,7 @@ function parseMoney(value?: string) {
   return Number(value.replace(/[^\d.-]/g, '')) || 0;
 }
 
-function buildCashbookRows(laborers: ReturnType<typeof useLaborers>): CashbookViewRow[] {
+function buildCashbookRows(laborers: Laborer[]): CashbookViewRow[] {
   return laborers.flatMap((laborer, index) => {
     const day = String(index + 1).padStart(2, '0');
     const weekday = weekdayFromIndex(index);
@@ -427,7 +424,7 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     fontWeight: '900',
     letterSpacing: -0.8,
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   monthButton: {
     minHeight: 48,
@@ -444,7 +441,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20,
     fontWeight: '800',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   sheetBackdrop: {
     flex: 1,

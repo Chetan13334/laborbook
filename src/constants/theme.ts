@@ -2,7 +2,6 @@
  * Shared theme tokens for the app.
  */
 
-import '@/global.css';
 import { Platform } from 'react-native';
 
 export const Colors = {
@@ -30,6 +29,7 @@ export const Colors = {
     // Status
     success: '#34C759',
     warning: '#FF3B30',
+    error: '#FF3B30',
   },
 
   dark: {
@@ -56,6 +56,7 @@ export const Colors = {
     // Status
     success: '#30D158',
     warning: '#FF453A',
+    error: '#FF453A',
   },
 } as const;
 
@@ -65,7 +66,7 @@ export type ThemeColor =
 
 export const Fonts = Platform.select({
   ios: {
-    sans: 'system-ui',
+    sans: 'System',
     serif: 'ui-serif',
     rounded: 'ui-rounded',
     mono: 'ui-monospace',
@@ -86,10 +87,10 @@ export const Fonts = Platform.select({
   },
 
   web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
+    sans: '"Inter", "Segoe UI", system-ui, sans-serif',
+    serif: 'Georgia, serif',
+    rounded: '"SF Pro Rounded", "Avenir Next Rounded", sans-serif',
+    mono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
   },
 });
 

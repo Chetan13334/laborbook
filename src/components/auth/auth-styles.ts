@@ -1,10 +1,8 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-export const authFontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+import { Fonts } from '@/constants/theme';
+
+export const authFontFamily = Fonts.sans;
 
 export const authStyles = StyleSheet.create({
   screen: {

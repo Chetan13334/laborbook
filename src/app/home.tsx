@@ -1,6 +1,8 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { Fonts } from '@/constants/theme';
 import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { useRouter, type Href } from 'expo-router';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
@@ -73,11 +75,7 @@ const actions: ActionItem[] = [
   { label: 'Reports', icon: 'bar_chart', accent: '#bb1712', route: '/reports' },
 ];
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 
 export default function HomePage() {
@@ -121,45 +119,15 @@ export default function HomePage() {
                 </View>
               </View>
 
-            <Pressable onPress={() => router.push('/notifications')} style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}>
-              <MaterialIcon name="notifications" color={theme.accent} size={24} />
-            </Pressable>
+              <Pressable onPress={() => router.push('/notifications')} style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}>
+                <MaterialIcons
+                  name="notifications"
+                  size={24}
+                  color={theme.accent}
+                />
+              </Pressable>
             </View>
           </View>
-
-          {/* <View style={[styles.heroCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <View style={styles.heroTopRow}>
-              <View>
-                <Text style={[styles.heroEyebrow, { color: theme.accent }]}>Today at a glance</Text>
-                <Text style={[styles.heroTitle, { color: theme.text }]}>Work moves better when the numbers feel calm.</Text>
-              </View>
-              <View style={styles.heroBadge}>
-                <Text style={styles.heroBadgeText}>Live</Text>
-              </View>
-            </View>
-
-            <Text style={[styles.heroDescription, { color: theme.textSecondary }]}>
-              Track labor, attendance, and payments with a clean, premium workspace that feels fast on every screen.
-            </Text>
-
-            {error ? (
-              <Text style={{ color: theme.error, marginVertical: 20 }}>Error loading dashboard data</Text>
-            ) : (
-              <View style={styles.heroStatsRow}>
-                <HeroChip label="Laborers" value={String(dashboard.totalLabor)} />
-                <HeroChip label="Present" value={String(dashboard.presentToday)} />
-                <HeroChip label="Pending" value={dashboard.pendingPayments} accent />
-              </View>
-            )}
-
-            <Pressable
-              onPress={() => router.push('/labor')}
-              style={({ pressed }) => [styles.heroButton, pressed && styles.pressed]}
-            >
-              <Text style={styles.heroButtonText}>Open Labor</Text>
-              <Text style={styles.heroButtonArrow}>{'\u2192'}</Text>
-            </Pressable>
-          </View> */}
 
           <View style={styles.sectionSpacing}>
             <View style={styles.sectionHeader}>
@@ -285,7 +253,7 @@ function StatCardView({ stat }: { stat: StatCard }) {
     </View>
   );
 }
-  
+
 function MaterialIcon({
   name,
   color,
@@ -324,21 +292,21 @@ const sharedShadow =
   Platform.OS === 'android'
     ? { elevation: 1 }
     : {
-        shadowColor: '#000',
-        shadowOpacity: 0.04,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
-      };
+      shadowColor: '#000',
+      shadowOpacity: 0.04,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
+    };
 
 const sharedShadowLarge =
   Platform.OS === 'android'
     ? { elevation: 6 }
     : {
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-        shadowOffset: { width: 0, height: 8 },
-      };
+      shadowColor: '#000',
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+    };
 
 const styles = StyleSheet.create({
   screen: {

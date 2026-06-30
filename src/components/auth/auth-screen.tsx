@@ -1,6 +1,7 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { Fonts } from '@/constants/theme';
 import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { useRouter, type Href } from 'expo-router';
 import {
@@ -65,11 +66,7 @@ const iconFallbacks: Record<string, string> = {
   arrow_forward: '\u2192',
 };
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 export default function HomePage() {
   const router = useRouter();

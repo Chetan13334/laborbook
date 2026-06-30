@@ -2,15 +2,12 @@ import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
 import { AppHeader } from '@/components/bars/app-header';
+import { Fonts } from '@/constants/theme';
 import { buildReportSnapshot, useCashbookRows, useLaborers } from '@/database';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 export default function ReportsPage() {
   const { theme, mode } = useAppTheme();

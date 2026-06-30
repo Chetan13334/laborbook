@@ -1,6 +1,7 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { Fonts } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -17,11 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createLabor } from '@/backend/api/laborers';
 
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
+const fontFamily = Fonts.sans;
 
 export default function AddLaborPage() {
   const router = useRouter();

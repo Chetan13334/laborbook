@@ -1,46 +1,8 @@
 import { useAppTheme } from '@/components/app-theme';
+import { Fonts } from '@/constants/theme';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-
-const fontFamily = Platform.select({
-  web: '"Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif',
-  ios: 'System',
-  default: 'sans-serif',
-});
-
-const materialIcons: Record<string, string> = {
-  notifications: 'notifications',
-};
-
-const iconFallbacks: Record<string, string> = {
-  notifications: '\u{1F514}',
-};
-
-function MaterialIcon({
-  name,
-  color,
-  size,
-}: {
-  name: string;
-  color: string;
-  size: number;
-}) {
-  const glyph = Platform.OS === 'web' ? materialIcons[name] ?? name : iconFallbacks[name] ?? '?';
-  return (
-    <Text
-      style={[
-        styles.icon,
-        {
-          color,
-          fontSize: size,
-          lineHeight: size,
-        },
-      ]}
-    >
-      {glyph}
-    </Text>
-  );
-}
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export function AppHeader() {
   const router = useRouter();
@@ -60,7 +22,7 @@ export function AppHeader() {
         </View>
 
         <Pressable onPress={() => router.push('/notifications')} style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}>
-          <MaterialIcon name="notifications" color={theme.accent} size={24} />
+          <MaterialIcons name="notifications" size={24} color={theme.accent} />
         </Pressable>
       </View>
     </View>
@@ -107,18 +69,18 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '700',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   brand: {
     fontSize: 20,
     fontWeight: '700',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   brandMeta: {
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '600',
-    fontFamily,
+    fontFamily: Fonts.sans,
   },
   iconButton: {
     width: 40,
@@ -126,12 +88,5 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'web' ? 'Material Symbols Outlined' : undefined,
-    fontWeight: '400',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
   },
 });
