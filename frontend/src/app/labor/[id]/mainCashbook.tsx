@@ -1,8 +1,7 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { Fonts } from '@/constants/theme';
-import { appDatabase } from '@/database';
-import { useLaborProfile } from '@/database';
+import { useLaborProfile } from '@/hooks/use-backend-data';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -234,7 +233,6 @@ export default function LaborDetailPage() {
       <AppBackdrop />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
         <View
           style={[
             styles.header,
@@ -340,7 +338,6 @@ export default function LaborDetailPage() {
             </View>
           </View>
 
-          {/* Open Report */}
           <Pressable
             style={[
               styles.reportBar,
@@ -356,7 +353,6 @@ export default function LaborDetailPage() {
             </Text>
           </Pressable>
 
-          {/* Table */}
           <View
             style={[
               styles.tableWrap,
@@ -424,7 +420,6 @@ export default function LaborDetailPage() {
           colors={colors}
         />
 
-        {/* Edit ledger */}
         <EditLedgerSheet
           row={editRow}
           amount={editAmount}
@@ -453,15 +448,6 @@ export default function LaborDetailPage() {
                   : row
               )
             );
-
-            try {
-              appDatabase.updateCashbookRow(editRow.day, {
-                amount: formattedAmount,
-                notes: editNotes.trim() || undefined,
-              });
-            } catch (error) {
-              console.log('updateCashbookRow error:', error);
-            }
 
             setEditRow(null);
           }}

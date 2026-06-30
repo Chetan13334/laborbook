@@ -1,8 +1,8 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
 import { Fonts } from '@/constants/theme';
-import { useNotifications } from '@/database';
+import { useNotifications } from '@/hooks/use-backend-data';
 import { useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +27,7 @@ export default function NotificationsPage() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          {notifications.map((notification) => (
+          {notifications.data.map((notification) => (
             <NotifyCard
               key={notification.id}
               title={notification.title}

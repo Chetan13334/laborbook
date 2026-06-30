@@ -1,8 +1,9 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
 import { Fonts } from '@/constants/theme';
-import { useLaborers, type Laborer } from '@/database';
+import { useLaborers } from '@/hooks/use-backend-data';
+import type { LaborerRecord as Laborer } from '@/types/app';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';

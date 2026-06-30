@@ -1,8 +1,9 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
 import { Fonts } from '@/constants/theme';
-import { buildDashboardSnapshot, useCashbookRows, useLaborers } from '@/database';
+import { buildDashboardSnapshot } from '@/lib/dashboard';
+import { useCashbookRows, useLaborers } from '@/hooks/use-backend-data';
 import { useRouter, type Href } from 'expo-router';
 import {
     ActivityIndicator,
@@ -73,7 +74,7 @@ export default function HomePage() {
   const { theme, mode } = useAppTheme();
   const { data: laborers, loading, error } = useLaborers();
   const cashbookRows = useCashbookRows();
-  const dashboard = buildDashboardSnapshot(laborers, cashbookRows);
+  const dashboard = buildDashboardSnapshot(laborers, cashbookRows.data);
 
   const recentLaborers = laborers.slice(0, 4);
 

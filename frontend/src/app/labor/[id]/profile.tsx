@@ -1,8 +1,8 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { Fonts } from '@/constants/theme';
-import { useLaborProfile } from '@/database';
-import { updateLabor } from '@backend/api/laborers';
+import { useLaborProfile } from '@/hooks/use-backend-data';
+import { updateLabor } from '@backend/controllers/labor.controller';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';

@@ -1,16 +1,35 @@
-import { supabase } from '../client';
-import type { Laborer, LaborProfile } from '@/database/types';
+import { getLaborerById, insertLaborer, listLaborers, updateLaborerById } from '../repositories/laborer.repository';
+import type { LaborerRow } from '../models/laborer.types';
 
-type LaborerRow = {
+type Laborer = {
   id: string;
-  owner_id: string;
-  full_name: string;
-  phone: string | null;
-  work_type: string | null;
-  daily_wage: number | null;
-  address: string | null;
-  notes: string | null;
-  created_at?: string | null;
+  slug: string;
+  initials: string;
+  name: string;
+  role: string;
+  status: 'Present' | 'Absent';
+  amount: string;
+  amountColor: string;
+  badge?: string;
+  badgeBg?: string;
+  badgeText?: string;
+  muted?: boolean;
+  phone?: string;
+};
+
+type LaborProfile = {
+  id: string;
+  name: string;
+  role: string;
+  dailyRate: string;
+  joinedDate: string;
+  workSites: string;
+  pendingDues: string;
+  duesNote: string;
+  attendance: { present: number; absent: number; upcoming: number };
+  activity: { title: string; time: string; description: string; icon: string; color: string }[];
+  payments: { title: string; ref: string; date: string; amount: string }[];
+  notes?: string;
 };
 
 export function getInitials(name: string) {
@@ -65,54 +84,25 @@ function mapProfile(row: LaborerRow): LaborProfile {
 
 export async function fetchLaborers(): Promise<{ data: Laborer[]; error: Error | null }> {
   try {
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData } = await (await import('../config/supabase.client')).supabase.auth.getSession();
     console.log('[fetchLaborers] session user id:', sessionData.session?.user?.id ?? null);
 
-    const { data, error } = await supabase
-      .from('laborers')
-      .select('id, owner_id, full_name, phone, work_type, daily_wage, created_at')
-      .order('created_at', { ascending: false });
-
-      console.log("==========");
-console.log("DATA:", data);
-console.log("ERROR:", error);
-console.log("==========");
-    console.log('[fetchLaborers] raw rows:', data);
-    console.log('[fetchLaborers] error:', error);
-
+    const { data, error } = await listLaborers();
     if (error) throw error;
 
-    const mapped = (data ?? []).map((row) => mapLaborer(row as LaborerRow));
-    console.log('[fetchLaborers] mapped laborers:', mapped);
-
-    return { data: mapped, error: null };
+    return { data: (data ?? []).map((row) => mapLaborer(row as LaborerRow)), error: null };
   } catch (err: any) {
-    console.log('fetchLaborers api error =>', err);
     return { data: [], error: err as Error };
   }
 }
 
 export async function fetchLaborProfile(id: string): Promise<{ data: LaborProfile | null; error: Error | null }> {
   try {
-    console.log('[fetchLaborProfile] incoming id:', id);
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log('[fetchLaborProfile] session user id:', sessionData.session?.user?.id ?? null);
-
-    const { data, error } = await supabase
-      .from('laborers')
-      .select('id, owner_id, full_name, phone, work_type, daily_wage, address, notes, created_at')
-      .eq('id', id)
-      .maybeSingle();
-
-    console.log('[fetchLaborProfile] raw row:', data);
-    console.log('[fetchLaborProfile] error:', error);
-
+    const { data, error } = await getLaborerById(id);
     if (error) throw error;
     if (!data) return { data: null, error: null };
-
     return { data: mapProfile(data as LaborerRow), error: null };
   } catch (err: any) {
-    console.log('fetchLaborProfile api error =>', err);
     return { data: null, error: err as Error };
   }
 }
@@ -126,22 +116,17 @@ export async function createLabor(input: {
 }) {
   try {
     const parsedAmount = Number(String(input.amount ?? '').replace(/[^\d.-]/g, ''));
-    const { data, error } = await supabase
-      .from('laborers')
-      .insert({
-        full_name: input.name.trim(),
-        phone: input.phone?.trim() || null,
-        work_type: input.role?.trim() || null,
-        daily_wage: Number.isFinite(parsedAmount) ? parsedAmount : null,
-        notes: input.notes?.trim() || null,
-      })
-      .select('id')
-      .single();
+    const { data, error } = await insertLaborer({
+      full_name: input.name.trim(),
+      phone: input.phone?.trim() || null,
+      work_type: input.role?.trim() || null,
+      daily_wage: Number.isFinite(parsedAmount) ? parsedAmount : null,
+      notes: input.notes?.trim() || null,
+    });
 
     if (error) throw error;
     return { data, error: null };
   } catch (err: any) {
-    console.log('createLabor api error =>', err);
     return { data: null, error: err as Error };
   }
 }
@@ -149,22 +134,15 @@ export async function createLabor(input: {
 export async function updateLabor(id: string, patch: { name?: string; role?: string; amount?: string }) {
   try {
     const parsedAmount = patch.amount ? Number(String(patch.amount).replace(/[^\d.-]/g, '')) : undefined;
-    const updates: Record<string, string | number | null> = {};
+    const updates: Partial<LaborerRow> = {};
     if (patch.name !== undefined) updates.full_name = patch.name.trim();
     if (patch.role !== undefined) updates.work_type = patch.role.trim() || null;
     if (patch.amount !== undefined) updates.daily_wage = Number.isFinite(parsedAmount ?? NaN) ? parsedAmount ?? null : null;
 
-    const { data, error } = await supabase
-      .from('laborers')
-      .update(updates)
-      .eq('id', id)
-      .select('id')
-      .single();
-
+    const { data, error } = await updateLaborerById(id, updates);
     if (error) throw error;
     return { data, error: null };
   } catch (err: any) {
-    console.log('updateLabor api error =>', err);
     return { data: null, error: err as Error };
   }
 }

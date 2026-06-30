@@ -9,16 +9,22 @@ export function AppHeader() {
   const { theme } = useAppTheme();
 
   return (
-    <View style={[styles.headerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+    <View style={[styles.headerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]} >
       <View style={styles.headerInner}>
         <View style={styles.brandRow}>
-            <View>
+          <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
+            <Text style={styles.avatarText}>LB</Text>
+          </View>
+          <View>
             <Text style={[styles.brand, { color: theme.text }]}>SiteBook</Text>
             <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>Operations dashboard</Text>
           </View>
         </View>
 
-        <Pressable onPress={() => router.push('/notifications')} style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}>
+        <Pressable
+          onPress={() => router.push('/notifications')}
+          style={[styles.iconButton, { backgroundColor: theme.accentSoft }]}
+        >
           <MaterialIcons name="notifications" size={24} color={theme.accent} />
         </Pressable>
       </View>

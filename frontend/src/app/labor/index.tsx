@@ -1,9 +1,9 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
-import { AppHeader } from '@/components/bars/app-header';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
+import { AppHeader } from '@/components/layout/app-header';
 import { Fonts } from '@/constants/theme';
-import { useLaborers } from '@/database';
+import { useLaborers } from '@/hooks/use-backend-data';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';

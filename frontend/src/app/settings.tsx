@@ -1,9 +1,8 @@
-import { supabase } from '@backend/client';
+import { supabase } from '@backend/config/supabase.client';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
 import { Fonts } from '@/constants/theme';
-import { appDatabase, useSettings } from '@/database';
 import { useRouter } from 'expo-router';
 import {
     Alert,
@@ -20,8 +19,7 @@ const fontFamily = Fonts.sans;
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { theme, mode, setMode } = useAppTheme();
-  const settings = useSettings();
+  const { theme, mode, toggleMode } = useAppTheme();
 
   const handleLogout = async () => {
     Alert.alert(
@@ -147,9 +145,7 @@ export default function SettingsPage() {
               description="Switch the app to a darker, low-light friendly look."
               enabled={mode === 'dark'}
               onToggle={() => {
-                const nextMode = mode === 'dark' ? 'light' : 'dark';
-                setMode(nextMode);
-                appDatabase.settings.setMode(nextMode);
+                toggleMode();
               }}
               palette={palette}
             />
@@ -159,8 +155,8 @@ export default function SettingsPage() {
             <SettingSwitch
               title="Push Notifications"
               description="Get updates for payments, attendance, and important reminders."
-              enabled={settings.notificationsEnabled ?? false}
-              onToggle={() => appDatabase.settings.toggleNotifications()}
+              enabled={false}
+              onToggle={() => {}}
               palette={palette}
             />
           </View>

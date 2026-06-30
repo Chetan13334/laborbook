@@ -1,10 +1,13 @@
-import { parseRupees } from './helpers';
-import type { CashbookRow, LaborProfileRecord, LaborerRecord } from './types';
+import type { CashbookRow, LaborProfileRecord, LaborerRecord } from '@/types/app';
+import { parseRupees } from '@/utils/money';
 
 export function buildDashboardSnapshot(laborers: LaborerRecord[], rows: CashbookRow[]) {
   const totalLabor = laborers.length;
   const presentToday = laborers.filter((laborer) => laborer.status === 'Present').length;
-  const pendingPaymentsValue = laborers.reduce((sum, laborer) => (laborer.badge === 'Unpaid' ? sum + parseRupees(laborer.amount) : sum), 0);
+  const pendingPaymentsValue = laborers.reduce(
+    (sum, laborer) => (laborer.badge === 'Unpaid' ? sum + parseRupees(laborer.amount) : sum),
+    0
+  );
   const monthlyExpensesValue = rows.reduce((sum, row) => sum + parseRupees(row.amount ?? '0'), 0);
 
   return {

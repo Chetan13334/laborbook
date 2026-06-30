@@ -1,6 +1,6 @@
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
-import { AppBottomBar } from '@/components/bars/app-bottom-bar';
+import { AppBottomBar } from '@/components/layout/app-bottom-bar';
 import { Fonts } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -16,7 +16,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createLabor } from '@backend/api/laborers';
+import { createLabor } from '@backend/controllers/labor.controller';
 
 const fontFamily = Fonts.sans;
 

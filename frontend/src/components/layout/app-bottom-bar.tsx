@@ -21,7 +21,6 @@ export function AppBottomBar() {
   const pathname = usePathname();
   const { theme, mode } = useAppTheme();
 
-  // Theme-aware color tokens
   const isLight = mode === 'light';
   const navBg = isLight ? '#ffffff' : '#111111';
   const navBorder = isLight ? '#e5e7eb' : '#1f2937';
@@ -34,15 +33,7 @@ export function AppBottomBar() {
 
   return (
     <View style={styles.shell} pointerEvents="box-none">
-      <View
-        style={[
-          styles.bottomNav,
-          {
-            backgroundColor: navBg,
-            borderColor: navBorder,
-          },
-        ]}
-      >
+      <View style={[styles.bottomNav, { backgroundColor: navBg, borderColor: navBorder }]}>
         {items.map((item) => {
           const active = isActive(pathname, item);
 
@@ -54,16 +45,8 @@ export function AppBottomBar() {
               }}
               style={({ pressed }) => [styles.navItem, pressed && styles.pressed]}
             >
-              <View
-                style={[
-                  styles.iconShell,
-                  { backgroundColor: active ? iconShellActiveBg : iconShellBg },
-                ]}
-              >
-                <BottomIcon
-                  kind={item.icon}
-                  color={active ? iconActiveColor : iconInactiveColor}
-                />
+              <View style={[styles.iconShell, { backgroundColor: active ? iconShellActiveBg : iconShellBg }]}>
+                <BottomIcon kind={item.icon} color={active ? iconActiveColor : iconInactiveColor} />
               </View>
 
               <Text
@@ -104,7 +87,6 @@ function BottomIcon({ kind, color }: { kind: BottomBarItem['icon']; color: strin
     );
   }
 
-  // settings
   return (
     <View style={styles.settingsIcon}>
       <View style={[styles.settingsRing, { borderColor: color }]} />
@@ -171,8 +153,6 @@ const styles = StyleSheet.create({
   navLabelActive: {
     fontWeight: '800',
   },
-
-  /* Icons */
   laborIcon: {
     width: 22,
     height: 22,
