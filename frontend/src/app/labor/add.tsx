@@ -16,7 +16,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createLabor } from '@/backend/api/laborers';
+import { createLabor } from '@backend/api/laborers';
 
 const fontFamily = Fonts.sans;
 

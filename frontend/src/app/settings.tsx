@@ -1,4 +1,4 @@
-import { supabase } from '@/backend/client';
+import { supabase } from '@backend/client';
 import { AppBackdrop } from '@/components/app-backdrop';
 import { useAppTheme } from '@/components/app-theme';
 import { AppBottomBar } from '@/components/bars/app-bottom-bar';

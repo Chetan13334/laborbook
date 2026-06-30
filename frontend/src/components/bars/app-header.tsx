@@ -12,10 +12,7 @@ export function AppHeader() {
     <View style={[styles.headerCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
       <View style={styles.headerInner}>
         <View style={styles.brandRow}>
-          <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
-            <Text style={styles.avatarText}>LB</Text>
-          </View>
-          <View>
+            <View>
             <Text style={[styles.brand, { color: theme.text }]}>SiteBook</Text>
             <Text style={[styles.brandMeta, { color: theme.textSecondary }]}>Operations dashboard</Text>
           </View>

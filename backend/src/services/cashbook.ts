@@ -1,4 +1,4 @@
-import { supabase } from "@/backend/client";
+import { supabase } from '../client';
 import { useEffect, useState } from "react";
 
 export type CashbookEntry = {

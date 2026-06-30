@@ -1,4 +1,4 @@
-import { supabase } from '@/backend/client';
+import { supabase } from '../client';
 import type { Laborer, LaborProfile } from '@/database/types';
 
 type LaborerRow = {

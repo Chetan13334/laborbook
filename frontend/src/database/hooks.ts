@@ -1,8 +1,8 @@
 import { useSyncExternalStore, useState, useEffect } from 'react';
 import { appDatabase } from './app-database';
 import type { Laborer, LaborProfile } from './types';
-import { fetchLaborers, fetchLaborProfile } from '@/backend/api/laborers';
-import { CashbookService, type CashbookEntry } from "@/backend/services/cashbook";
+import { fetchLaborers, fetchLaborProfile } from '@backend/api/laborers';
+import { CashbookService, type CashbookEntry } from '@backend/services/cashbook';
 
 
 function useDatabaseSnapshot<T>(subscribe: (listener: () => void) => () => void, selector: () => T): T {

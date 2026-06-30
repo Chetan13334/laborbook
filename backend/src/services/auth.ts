@@ -1,4 +1,4 @@
-import { supabase } from '@/backend/client';
+import { supabase } from '../client';
 
 // This is an initial structure for auth.
 // It can easily be expanded to support phone OTP, Google Sign-in, etc.
