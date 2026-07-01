@@ -1,6 +1,6 @@
 {
   "expo": {
-      "name": "SiteBook",
+    "name": "SiteBook",
     "slug": "laborbook",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -40,7 +40,8 @@
             "imageWidth": 128
           }
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "reactCompiler": true
